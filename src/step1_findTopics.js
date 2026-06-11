@@ -69,8 +69,9 @@ Réponds UNIQUEMENT en JSON, format strict :
 Pas de texte avant/après, pas de markdown.`;
 
   const result = await model.generateContent(prompt);
+  console.log('Réponse brute Gemini:', JSON.stringify(result.response, null, 2));
   const text = result.response.text().trim();
-
+  console.log('Texte extrait (longueur ' + text.length + '):', text);
   const cleaned = text.replace(/```json|```/g, '').trim();
 
   let topics;
