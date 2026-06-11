@@ -28,6 +28,17 @@ Règles obligatoires :
 - Utilise Google Search pour vérifier chaque sujet.
 - N'utilise AUCUNE information antérieure à ${annee}, sauf pour apporter du contexte.
 - N'invente aucun fait, chiffre ou déclaration.
+- Avant de retenir un sujet, vérifie qu'au moins une source récente de ${annee} décrit explicitement l'événement.
+- Rejette tout sujet qui n'est qu'une tendance, un contexte, une stratégie, une intention politique ou un débat récurrent.
+- Ne transforme jamais un thème général en événement d'actualité.
+- Si tu ne peux pas identifier un fait précis, daté et vérifiable, rejette le sujet.
+- Chaque sujet doit correspondre à un événement réellement survenu en ${annee}.
+- Avant de valider un sujet, vérifie :
+  1. Quel événement précis a eu lieu ?
+  2. Quelle est la date de l'événement ?
+  3. Quel acteur identifié est directement concerné ?
+  4. Quelle source récente confirme ce fait ?
+- Si une seule de ces informations manque, ne propose pas le sujet.
 
 Pays autorisés :
 France, Belgique, Suisse, Luxembourg, Québec, Canada francophone,
