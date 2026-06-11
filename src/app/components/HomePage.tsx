@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { projectId, publicAnonKey } from "/utils/supabase/info";
+import { supabase } from "/utils/supabase/client";
 
 interface Article {
   id: string;
   titre: string;
-  resume: string;
+  contenu: string;
   date_publication: string;
   statut: string;
   score: number;
   categorie?: string;
 }
-
-const API = `https://${projectId}.supabase.co/functions/v1/make-server-faf3bff8`;
 
 function formatDate(iso: string) {
   return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(iso));
@@ -30,6 +28,11 @@ function getCategoryColor(cat?: string) {
   return map[cat || ""] || "text-muted-foreground bg-muted";
 }
 
+function getResume(contenu: string) {
+  const clean = contenu.replace(/\n/g, " ");
+  return clean.length > 180 ? clean.slice(0, 180) + "…" : clean;
+}
+
 export function HomePage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,14 +41,14 @@ export function HomePage() {
   useEffect(() => {
     async function load() {
       try {
-        // Seed on first load
-        await fetch(`${API}/seed`, { method: "POST", headers: { Authorization: `Bearer ${publicAnonKey}` } });
-        const res = await fetch(`${API}/articles?statut=published`, {
-          headers: { Authorization: `Bearer ${publicAnonKey}` },
-        });
-        if (!res.ok) throw new Error(`Erreur serveur: ${res.status}`);
-        const data = await res.json();
-        setArticles(data);
+        const { data, error } = await supabase
+          .from("articles")
+          .select("*")
+          .eq("statut", "published")
+          .order("date_publication", { ascending: false });
+
+        if (error) throw new Error(error.message);
+        setArticles(data || []);
       } catch (e: any) {
         console.error("Error loading articles:", e);
         setError(e.message);
@@ -107,7 +110,7 @@ export function HomePage() {
                 className="text-muted-foreground leading-relaxed mb-4 text-base"
                 style={{ fontFamily: "var(--font-body)" }}
               >
-                {featured.resume}
+                {getResume(featured.contenu)}
               </p>
               <div className="flex items-center gap-4">
                 <time
@@ -144,7 +147,6 @@ export function HomePage() {
         </article>
       )}
 
-      {/* Article grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border">
         {rest.map((article) => (
           <ArticleCard key={article.id} article={article} />
@@ -184,7 +186,7 @@ function ArticleCard({ article }: { article: Article }) {
           className="text-sm text-muted-foreground leading-relaxed line-clamp-3"
           style={{ fontFamily: "var(--font-body)" }}
         >
-          {article.resume}
+          {getResume(article.contenu)}
         </p>
       </Link>
       <div className="flex items-center justify-between pt-2 border-t border-border">
