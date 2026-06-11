@@ -9,18 +9,58 @@ export async function findTopics() {
 
 const annee = new Date().getFullYear();
 
-const prompt = `Tu es un veilleur d'actualité francophone expert en tendances et buzz.
-Nous sommes en ${annee}. Propose 5 sujets d'actualité de l'année ${annee} uniquement, variés et percutants.
-Concentre-toi UNIQUEMENT sur les pays francophones : France, Belgique, Suisse, Canada (Québec), Maroc, Tunisie, Sénégal, Côte d'Ivoire, etc.
-N'utilise JAMAIS des événements antérieurs à ${annee}.
-N'invente rien — base-toi uniquement sur des actualités réelles et vérifiables.
+const prompt = `
+Tu es rédacteur en chef d'un média francophone spécialisé dans l'actualité.
+
+Nous sommes en ${annee}.
+
+Mission :
+Identifier 5 sujets d'actualité RÉELS, IMPORTANTS et VÉRIFIABLES de l'année ${annee}.
+
+Règles obligatoires :
+
+- Utilise Google Search pour vérifier chaque sujet.
+- N'utilise AUCUNE information antérieure à ${annee}, sauf pour apporter du contexte.
+- N'invente aucun fait, chiffre ou déclaration.
+- Privilégie les sujets reposant sur un événement concret :
+  - décision politique,
+  - vote,
+  - loi,
+  - crise,
+  - étude,
+  - rapport,
+  - innovation,
+  - enquête,
+  - scandale,
+  - polémique documentée,
+  - phénomène viral mesurable.
+
+Pays autorisés :
+France, Belgique, Suisse, Luxembourg, Québec, Canada francophone,
+Maroc, Algérie, Tunisie, Sénégal, Côte d'Ivoire, Cameroun et autres pays francophones.
+
 Mix obligatoire :
-- 1 sujet politique ou géopolitique chaud dans un pays francophone
-- 1 sujet technologie ou IA avec impact francophone
-- 1 sujet société ou fait divers marquant en France ou ailleurs dans la francophonie
-- 1 sujet polémique ou débat en cours (réseau sociaux, culture, sport) francophone
-- 1 sujet viral ou insolite du moment dans un pays francophone
-Pour chaque sujet, choisis l'angle le plus accrocheur et potentiellement clivant sans être mensonger.
+
+1 sujet politique ou géopolitique majeur.
+1 sujet économique ou énergétique.
+1 sujet technologie / IA.
+1 sujet société ou culture.
+1 sujet viral, insolite ou fortement débattu sur les réseaux.
+
+Pour chaque sujet :
+
+- créer un titre journalistique attractif mais factuel ;
+- fournir un résumé de 80 à 120 mots ;
+- expliquer pourquoi le sujet fait l'actualité ;
+- inclure au moins un élément concret (date, chiffre, décision, déclaration, étude, vote ou événement) ;
+- éviter les formulations vagues comme :
+  "suscite des débats",
+  "fait polémique",
+  "au cœur des discussions"
+  sans expliquer précisément pourquoi.
+
+Le titre doit refléter exactement le contenu.
+
 Réponds UNIQUEMENT en JSON, format strict :
 [
   {"titre": "...", "description": "...", "source": "...", "categorie": "..."},
