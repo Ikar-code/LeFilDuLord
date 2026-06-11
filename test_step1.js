@@ -15,18 +15,21 @@ import { publishArticle } from './src/step5_publishArticle.js';
     if (newTopics.length > 0) {
       const topic = newTopics[0];
 
-      const article = await writeArticle(topic);
+      const { article, evaluation, rejeté } = await writeArticle(topic, scoreArticle);
+
       console.log('--- ARTICLE GÉNÉRÉ ---');
       console.log('Titre:', article.titre);
-
-      const evaluation = await scoreArticle(article);
       console.log('--- ÉVALUATION ---');
       console.log(JSON.stringify(evaluation, null, 2));
 
-      const statut = await publishArticle(article, evaluation, topic.titre);
-      console.log(`--- RÉSULTAT FINAL: statut = ${statut} ---`);
+      if (rejeté) {
+        console.log('--- ARTICLE REJETÉ après 3 tentatives ---');
+      } else {
+        const statut = await publishArticle(article, evaluation, topic.titre);
+        console.log(`--- RÉSULTAT FINAL: statut = ${statut} ---`);
+      }
     } else {
-      console.log('Aucun nouveau sujet à traiter pour cette étape.');
+      console.log('Aucun nouveau sujet à traiter.');
     }
   } catch (e) {
     console.error('Échec:', e.message);
