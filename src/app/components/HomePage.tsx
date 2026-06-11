@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { supabase } from "../../utils/supabase/client";
+import { supabase } from "../../../utils/supabase/client";
 
 interface Article {
   id: string;
