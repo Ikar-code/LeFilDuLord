@@ -2,7 +2,7 @@ import { genAI } from './clients.js';
 import { log } from './logger.js';
 
 export async function findTopics() {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
   const prompt = `Tu es un veilleur d'actualité francophone.
 Propose 3 sujets d'actualité RÉCENTE et pertinente (derniers jours), variés (pas uniquement politique).
