@@ -32,8 +32,6 @@ interface Journal {
   sujet_id?: string;
 }
 
-const API = `https://${projectId}.supabase.co/functions/v1/make-server-faf3bff8`;
-
 function fmt(iso: string) {
   return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 }
