@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router";
-import { projectId, publicAnonKey } from "/utils/supabase/info";
+import { supabase } from "../../utils/supabase/client";
 
 interface Article {
   id: string;
@@ -8,7 +8,7 @@ interface Article {
   resume: string;
   date_publication: string;
   date_creation: string;
-  statut: "published" | "draft";
+  statut: "published" | "draft" | "rejected";
   score: number;
   categorie?: string;
   sujet_id?: string;
@@ -17,7 +17,7 @@ interface Article {
 interface Sujet {
   id: string;
   titre: string;
-  statut: "pending" | "processing" | "done" | "rejected";
+  statut: string;
   date_creation: string;
   article_id?: string;
 }
@@ -25,7 +25,7 @@ interface Sujet {
 interface Journal {
   id: string;
   action: string;
-  statut: "success" | "warning" | "error";
+  statut: "success" | "warning" | "error" | "info";
   details: string;
   date: string;
   article_id?: string;
@@ -113,13 +113,34 @@ export function AdminDashboard() {
     async function load() {
       try {
         const [aRes, sRes, jRes] = await Promise.all([
-          fetch(`${API}/articles`, { headers: { Authorization: `Bearer ${publicAnonKey}` } }),
-          fetch(`${API}/sujets`, { headers: { Authorization: `Bearer ${publicAnonKey}` } }),
-          fetch(`${API}/journaux`, { headers: { Authorization: `Bearer ${publicAnonKey}` } }),
+          supabase.from("articles").select("*"),
+          supabase.from("sujets").select("*"),
+          supabase.from("journaux").select("*"),
         ]);
-        setArticles(await aRes.json());
-        setSujets(await sRes.json());
-        setJournaux(await jRes.json());
+
+        if (aRes.error) throw new Error(aRes.error.message);
+        if (sRes.error) throw new Error(sRes.error.message);
+        if (jRes.error) throw new Error(jRes.error.message);
+
+        setArticles(
+          (aRes.data || []).map((a: any) => ({
+            ...a,
+            resume: a.contenu ? a.contenu.slice(0, 150) + "…" : "",
+            date_publication: a.date_publication || a.date_creation,
+          }))
+        );
+        
+        setSujets((sRes.data || []) as Sujet[]);
+
+        setJournaux(
+          (jRes.data || []).map((j: any) => ({
+            id: j.id,
+            action: j.etape,
+            statut: j.statut,
+            details: j.message,
+            date: j.timestamp,
+          }))
+        );
       } catch (e) {
         console.error("Error loading admin data:", e);
       } finally {
