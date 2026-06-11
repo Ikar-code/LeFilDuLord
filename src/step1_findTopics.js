@@ -1,7 +1,7 @@
-const { genAI } = require('./clients');
-const { log } = require('./logger');
+import { genAI } from './clients.js';
+import { log } from './logger.js';
 
-async function findTopics() {
+export async function findTopics() {
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
   const prompt = `Tu es un veilleur d'actualité francophone.
@@ -29,5 +29,3 @@ Pas de texte avant/après, pas de markdown.`;
   await log('findTopics', `${topics.length} sujets trouvés`, 'success', topics);
   return topics;
 }
-
-module.exports = { findTopics };
