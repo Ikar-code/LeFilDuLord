@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { projectId, publicAnonKey } from "/utils/supabase/info";
+import { supabase } from "../../utils/supabase/client";
 
 interface Article {
   id: string;
   titre: string;
-  resume: string;
   contenu: string;
   date_publication: string;
   date_creation: string;
@@ -15,8 +14,6 @@ interface Article {
   sujet_id?: string;
 }
 
-const API = `https://${projectId}.supabase.co/functions/v1/make-server-faf3bff8`;
-
 function formatDate(iso: string) {
   return new Intl.DateTimeFormat("fr-FR", {
     weekday: "long",
@@ -24,6 +21,11 @@ function formatDate(iso: string) {
     month: "long",
     year: "numeric",
   }).format(new Date(iso));
+}
+
+function getResume(contenu: string) {
+  const clean = contenu.replace(/\n/g, " ");
+  return clean.length > 200 ? clean.slice(0, 200) + "…" : clean;
 }
 
 function ScoreBar({ score }: { score: number }) {
@@ -56,11 +58,14 @@ export function ArticlePage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`${API}/articles/${id}`, {
-          headers: { Authorization: `Bearer ${publicAnonKey}` },
-        });
-        if (!res.ok) throw new Error(`Article introuvable (${res.status})`);
-        setArticle(await res.json());
+        const { data, error } = await supabase
+          .from("articles")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (error) throw new Error(error.message);
+        setArticle(data);
       } catch (e: any) {
         console.error("Error loading article:", e);
         setError(e.message);
@@ -109,7 +114,6 @@ export function ArticlePage() {
         ← Retour à l'accueil
       </Link>
 
-      {/* Article header */}
       <header className="mb-8 pb-8 border-b border-border">
         {article.categorie && (
           <span
@@ -129,7 +133,7 @@ export function ArticlePage() {
           className="text-lg text-muted-foreground leading-relaxed mb-5 font-light italic"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          {article.resume}
+          {getResume(article.contenu)}
         </p>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
@@ -153,7 +157,6 @@ export function ArticlePage() {
         </div>
       </header>
 
-      {/* Article body */}
       <div className="prose-section">
         {paragraphs.map((para, i) => (
           <p
@@ -166,7 +169,6 @@ export function ArticlePage() {
         ))}
       </div>
 
-      {/* Footer */}
       <footer className="mt-10 pt-6 border-t border-border">
         <div className="flex items-center gap-3 text-xs text-muted-foreground" style={{ fontFamily: "var(--font-body)" }}>
           <span className="inline-flex items-center gap-1.5">
