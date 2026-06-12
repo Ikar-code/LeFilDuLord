@@ -6,7 +6,7 @@ export function PrivacyPage() {
       <h1
         className="text-3xl font-bold text-foreground mb-6"
         style={{ fontFamily: "var(--font-display)" }}
-      
+      >
         Politique de confidentialité
       </h1>
 
@@ -49,17 +49,12 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold mb-2">4. Cookies tiers — Google AdSense</h2>
+          <h2 className="text-lg font-semibold mb-2">4. Cookies tiers - Google AdSense</h2>
           <p>
             Si vous acceptez les cookies publicitaires, Google et ses partenaires peuvent utiliser
             des cookies pour diffuser des annonces personnalisées en fonction de votre navigation.
             Vous pouvez gérer vos préférences publicitaires directement sur{" "}
-            <a>
-              href="https://adssettings.google.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent hover:underline"
-            >
+            <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
               adssettings.google.com
             </a>.
           </p>
