@@ -6,7 +6,7 @@ export function PrivacyPage() {
       <h1
         className="text-3xl font-bold text-foreground mb-6"
         style={{ fontFamily: "var(--font-display)" }}
-      >
+      
         Politique de confidentialité
       </h1>
 
