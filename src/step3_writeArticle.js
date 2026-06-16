@@ -3,23 +3,79 @@ import { log } from './logger.js';
 
 async function generateArticle(topic) {
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-  const prompt = `Tu es journaliste pour "Le Fil du Lord", un média d'actualité en ligne.
-Rédige un article complet en français à partir de ce sujet :
-Titre proposé: ${topic.titre}
-Description: ${topic.description}
-Source: ${topic.source}
-Consignes :
-- Ton journalistique, neutre et informatif
-- Structure claire avec plusieurs paragraphes
-- Longueur : environ 300-400 mots
-- Propose un titre accrocheur (peut différer du titre proposé)
-- Propose un angle éditorial en une phrase
-Réponds UNIQUEMENT en JSON, format strict, sans markdown :
+  const prompt = `
+Tu es journaliste pour "Le Fil du Lord", un média d'actualité numérique francophone.
+
+Ta mission est de rédiger un véritable article journalistique complet à partir du sujet fourni.
+
+Sujet :
+Titre proposé : ${topic.titre}
+
+Description :
+${topic.description}
+
+Source :
+${topic.source}
+
+Consignes journalistiques obligatoires :
+
+- Ton professionnel, neutre, informatif et accessible
+- Ne pas donner d'opinion personnelle
+- Ne pas inventer d'informations
+- Utiliser uniquement les éléments disponibles dans le sujet et la source
+- Écrire comme un article publié sur un média en ligne
+
+Longueur :
+- Entre 800 et 1200 mots environ
+- L'article doit être suffisamment développé pour informer complètement le lecteur
+
+Structure obligatoire :
+
+1. TITRE
+- Doit être accrocheur mais rester journalistique
+- Doit annoncer clairement l'événement
+- Peut différer du titre proposé
+
+2. ANGLE ÉDITORIAL
+- Une phrase expliquant l'approche choisie pour traiter le sujet
+
+3. CONTENU
+L'article doit contenir :
+
+Introduction :
+- Présenter immédiatement le fait d'actualité
+- Répondre rapidement à :
+  Qui ?
+  Quoi ?
+  Quand ?
+  Où ?
+
+Développement :
+- Expliquer le contexte
+- Présenter les acteurs concernés
+- Ajouter les informations importantes
+- Détailler les conséquences possibles
+- Donner les éléments nécessaires pour comprendre l'événement
+
+Conclusion :
+- Résumer l'importance de l'événement
+- Donner une ouverture sur la suite possible
+
+Style :
+- Paragraphes courts et lisibles
+- Pas de liste sauf si nécessaire
+- Pas de formulation vague
+- Éviter les phrases artificielles d'IA
+- Écrire comme un journaliste humain
+
+Réponds UNIQUEMENT en JSON valide, sans markdown :
+
 {
   "titre": "...",
   "angle": "...",
   "contenu": "..."
-}`;
+}
+`;
   const result = await model.generateContent(prompt);
   const text = result.response.text().trim();
   const cleaned = text.replace(/```json|```/g, '').trim();
