@@ -20,55 +20,87 @@ ${topic.source}
 Consignes journalistiques obligatoires :
 
 - Ton professionnel, neutre, informatif et accessible
-- Ne pas donner d'opinion personnelle
-- Ne pas inventer d'informations
+- Écrire comme un journaliste d'un média en ligne
+- Ne jamais donner d'opinion personnelle
+- Ne jamais inventer d'informations, de chiffres, de citations ou d'acteurs
 - Utiliser uniquement les éléments disponibles dans le sujet et la source
-- Écrire comme un article publié sur un média en ligne
+- Ne pas transformer une hypothèse en fait
+
+Objectif :
+L'article doit informer un lecteur qui découvre le sujet.
+Le lecteur doit comprendre rapidement :
+- ce qui s'est passé
+- quand cela s'est passé
+- qui est concerné
+- pourquoi cet événement est important
+- quelles sont les conséquences possibles
 
 Longueur :
 - Entre 800 et 1200 mots environ
-- L'article doit être suffisamment développé pour informer complètement le lecteur
+- L'article doit être suffisamment développé pour ressembler à un vrai article de presse
 
 Structure obligatoire :
 
 1. TITRE
-- Doit être accrocheur mais rester journalistique
+- Doit être accrocheur mais journalistique
 - Doit annoncer clairement l'événement
-- Peut différer du titre proposé
+- Peut être différent du titre proposé
+- Éviter les titres trop vagues ou sensationnalistes
 
 2. ANGLE ÉDITORIAL
-- Une phrase expliquant l'approche choisie pour traiter le sujet
+- Une seule phrase expliquant l'approche choisie pour traiter le sujet
 
 3. CONTENU
-L'article doit contenir :
 
 Introduction :
-- Présenter immédiatement le fait d'actualité
-- Répondre rapidement à :
+- Présenter immédiatement le fait principal
+- Donner les informations essentielles dès le début
+- Répondre aux questions :
   Qui ?
   Quoi ?
   Quand ?
   Où ?
 
 Développement :
-- Expliquer le contexte
-- Présenter les acteurs concernés
-- Ajouter les informations importantes
-- Détailler les conséquences possibles
-- Donner les éléments nécessaires pour comprendre l'événement
+- Ajouter le contexte nécessaire
+- Expliquer les acteurs concernés
+- Détailler les faits importants
+- Présenter les conséquences possibles
+- Donner les informations permettant au lecteur de comprendre l'enjeu
 
 Conclusion :
-- Résumer l'importance de l'événement
-- Donner une ouverture sur la suite possible
+- Résumer ce qu'il faut retenir
+- Donner une ouverture sur les prochaines évolutions possibles
 
-Style :
+Style rédactionnel :
 - Paragraphes courts et lisibles
-- Pas de liste sauf si nécessaire
-- Pas de formulation vague
-- Éviter les phrases artificielles d'IA
-- Écrire comme un journaliste humain
+- Style naturel comme un journaliste humain
+- Pas de répétitions
+- Pas de phrases génériques d'intelligence artificielle
+- Pas de remplissage inutile
+- Adapter le ton au sujet (gaming, technologie, politique, culture, sport, science...)
 
-Réponds UNIQUEMENT en JSON valide, sans markdown :
+Format obligatoire :
+
+Réponds UNIQUEMENT en JSON valide.
+
+INTERDICTIONS ABSOLUES :
+- Aucun Markdown
+- Aucun symbole **
+- Aucun symbole #
+- Aucune liste Markdown
+- Aucun texte avant ou après le JSON
+- Aucun formatage spécial
+
+Les titres de sections dans le contenu doivent être écrits en texte simple.
+
+Exemple interdit :
+**Les conséquences pour les entreprises**
+
+Exemple accepté :
+Les conséquences pour les entreprises
+
+Réponds exactement dans ce format :
 
 {
   "titre": "...",
