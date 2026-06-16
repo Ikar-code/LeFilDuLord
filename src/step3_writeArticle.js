@@ -20,14 +20,28 @@ ${topic.source}
 Consignes journalistiques obligatoires :
 
 - Ton professionnel, neutre, informatif et accessible
-- Écrire comme un journaliste d'un média en ligne
+- Écrire comme un journaliste d'un média numérique moderne
 - Ne jamais donner d'opinion personnelle
-- Ne jamais inventer d'informations, de chiffres, de citations ou d'acteurs
-- Utiliser uniquement les éléments disponibles dans le sujet et la source
-- Ne pas transformer une hypothèse en fait
+- Ne jamais inventer d'informations, chiffres, citations, réactions ou acteurs
+- Utiliser uniquement les informations disponibles dans le sujet et la source
+- Ne jamais présenter une hypothèse comme un fait confirmé
+- Ne jamais ajouter de source externe non fournie
+
+Fidélité au sujet :
+
+- Respecter exactement la nature de l'événement présenté
+- Ne jamais exagérer l'importance d'une annonce
+- Ne jamais transformer une technologie spécialisée en technologie générale
+- Ne jamais transformer un outil, une expérience ou un prototype en produit révolutionnaire sans preuve
+- Toujours expliquer clairement :
+  - ce que c'est réellement
+  - à quoi cela sert
+  - quelles sont ses limites
+  - qui est concerné
 
 Objectif :
 L'article doit informer un lecteur qui découvre le sujet.
+
 Le lecteur doit comprendre rapidement :
 - ce qui s'est passé
 - quand cela s'est passé
@@ -37,18 +51,26 @@ Le lecteur doit comprendre rapidement :
 
 Longueur :
 - Entre 800 et 1200 mots environ
-- L'article doit être suffisamment développé pour ressembler à un vrai article de presse
+- L'article doit ressembler à un véritable article de presse
 
 Structure obligatoire :
 
 1. TITRE
+
 - Doit être accrocheur mais journalistique
 - Doit annoncer clairement l'événement
 - Peut être différent du titre proposé
-- Éviter les titres trop vagues ou sensationnalistes
+- Ne pas utiliser de sensationnalisme
+- Éviter les formulations exagérées comme :
+  "révolutionne totalement"
+  "change tout"
+  "nouvelle ère"
+  sauf si elles sont prouvées et nécessaires
 
 2. ANGLE ÉDITORIAL
+
 - Une seule phrase expliquant l'approche choisie pour traiter le sujet
+- Doit expliquer pourquoi cet événement mérite un article
 
 3. CONTENU
 
@@ -63,36 +85,48 @@ Introduction :
 
 Développement :
 - Ajouter le contexte nécessaire
-- Expliquer les acteurs concernés
-- Détailler les faits importants
-- Présenter les conséquences possibles
-- Donner les informations permettant au lecteur de comprendre l'enjeu
+- Présenter les acteurs concernés
+- Expliquer les faits importants
+- Détailler les conséquences possibles
+- Donner les éléments nécessaires pour comprendre l'enjeu
+
+Pour les sujets technologie, IA ou innovation :
+- Expliquer le fonctionnement réel
+- Éviter le vocabulaire marketing
+- Mentionner les limites ou incertitudes si nécessaire
 
 Conclusion :
 - Résumer ce qu'il faut retenir
 - Donner une ouverture sur les prochaines évolutions possibles
 
 Style rédactionnel :
+
 - Paragraphes courts et lisibles
 - Style naturel comme un journaliste humain
 - Pas de répétitions
 - Pas de phrases génériques d'intelligence artificielle
 - Pas de remplissage inutile
-- Adapter le ton au sujet (gaming, technologie, politique, culture, sport, science...)
+- Pas de formulation promotionnelle
+- Pas de conclusion exagérée
+
+Adapter le ton au sujet :
+(gaming, technologie, politique, culture, sport, science, économie...)
 
 Format obligatoire :
 
 Réponds UNIQUEMENT en JSON valide.
 
 INTERDICTIONS ABSOLUES :
+
 - Aucun Markdown
 - Aucun symbole **
 - Aucun symbole #
 - Aucune liste Markdown
 - Aucun texte avant ou après le JSON
 - Aucun formatage spécial
+- Aucun titre de section avec des symboles
 
-Les titres de sections dans le contenu doivent être écrits en texte simple.
+Les titres de sections dans le contenu doivent être écrits simplement.
 
 Exemple interdit :
 **Les conséquences pour les entreprises**
