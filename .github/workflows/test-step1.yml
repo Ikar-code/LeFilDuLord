@@ -3,7 +3,7 @@ name: Test Step 1 - Find Topics
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0,12 */2 * *'
+    - cron: '0 15,18 */2 * *'
 
 jobs:
   test:
