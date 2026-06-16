@@ -10,71 +10,167 @@ export async function findTopics() {
   const annee = new Date().getFullYear();
 
   const prompt = `
-Tu es rédacteur en chef d'un média francophone spécialisé dans l'actualité.
+Tu es rédacteur en chef d'un média francophone numérique spécialisé dans l'actualité récente.
+
 Nous sommes en ${annee}.
 
 Mission :
-Identifier 5 sujets d'actualité RÉELS, IMPORTANTS et VÉRIFIABLES de l'année ${annee}.
+Identifier 5 sujets d'actualité RÉELS, RÉCENTS, IMPORTANTS et VÉRIFIABLES
+qui peuvent faire l'objet d'un véritable article journalistique complet.
+
+Le but est de sélectionner des événements capables de produire un article média
+professionnel de 800 à 1200 mots.
 
 RÈGLE FONDAMENTALE :
-Chaque sujet doit être déclenché par un événement précis : une décision, une annonce,
-un vote, une étude, une publication officielle, un chiffre publié, ou une mesure
-entrée en vigueur en ${annee}.
-Interdiction de proposer un simple thème, un débat général ou une tendance de fond.
-Le lecteur doit pouvoir répondre immédiatement à la question : "Qu'est-ce qui s'est passé,
-quand, et qui est concerné ?"
+Chaque sujet doit correspondre à un événement précis survenu en ${annee} :
+- annonce officielle
+- décision politique
+- lancement de produit
+- publication d'étude
+- changement de loi
+- découverte scientifique
+- événement économique
+- événement culturel majeur
+- sortie importante dans le gaming
+- événement sportif majeur
+- incident ou phénomène viral confirmé
 
-Règles obligatoires :
-- Utilise Google Search pour vérifier chaque sujet.
-- N'utilise AUCUNE information antérieure à ${annee}, sauf pour apporter du contexte.
-- N'invente aucun fait, chiffre ou déclaration.
-- Avant de retenir un sujet, vérifie qu'au moins une source récente de ${annee} décrit explicitement l'événement.
-- Rejette tout sujet qui n'est qu'une tendance, un contexte, une stratégie, une intention politique ou un débat récurrent.
-- Ne transforme jamais un thème général en événement d'actualité.
-- Si tu ne peux pas identifier un fait précis, daté et vérifiable, rejette le sujet.
-- Chaque sujet doit correspondre à un événement réellement survenu en ${annee}.
-- Avant de valider un sujet, vérifie :
-  1. Quel événement précis a eu lieu ?
-  2. Quelle est la date de l'événement ?
-  3. Quel acteur identifié est directement concerné ?
-  4. Quelle source récente confirme ce fait ?
-- Si une seule de ces informations manque, ne propose pas le sujet.
+Interdiction :
+- proposer un simple thème
+- proposer une tendance sans événement précis
+- reprendre un débat ancien
+- inventer des informations
+- transformer une idée générale en actualité
 
-Pays autorisés :
-France, Belgique, Suisse, Luxembourg, Québec, Canada francophone,
-Maroc, Algérie, Tunisie, Sénégal, Côte d'Ivoire, Cameroun et autres pays francophones.
+Avant de retenir un sujet, vérifie :
 
-Mix obligatoire :
-1 sujet politique ou géopolitique majeur.
-1 sujet économique ou énergétique.
-1 sujet technologie / IA.
-1 sujet société ou culture.
-1 sujet viral, insolite ou fortement débattu sur les réseaux.
+1. Quel événement précis a eu lieu ?
+2. Quelle est sa date exacte ?
+3. Qui est directement concerné ?
+4. Quelle source récente confirme l'information ?
+5. Pourquoi cet événement mérite un article ?
+
+Si une information n'est pas vérifiable, rejette le sujet.
+
+Domaines recherchés :
+
+1. Technologie & Intelligence artificielle
+- nouveaux modèles IA
+- annonces importantes des entreprises tech
+- nouvelles réglementations
+- innovations majeures
+- cybersécurité
+- robotique
+
+2. Monde & géopolitique
+- décisions internationales
+- conflits
+- accords
+- changements diplomatiques
+- événements ayant un impact mondial
+
+3. Économie & entreprises
+- résultats financiers
+- nouveaux marchés
+- rachats
+- crises économiques
+- innovations industrielles
+- décisions importantes d'entreprises
+
+4. Science, espace & environnement
+- découvertes scientifiques
+- études importantes
+- missions spatiales
+- climat
+- environnement
+- santé publique
+
+5. Gaming & industrie du jeu vidéo
+- annonces de studios
+- nouveaux jeux majeurs
+- sorties importantes
+- rachats d'entreprises gaming
+- événements esport
+- changements dans l'industrie
+- polémiques liées au jeu vidéo
+
+6. Culture & divertissement
+- cinéma
+- séries
+- musique
+- plateformes streaming
+- événements culturels importants
+
+7. Sport
+- compétitions majeures
+- records
+- transferts importants
+- décisions de fédérations
+- événements sportifs internationaux
+
+8. Société & phénomènes internet
+- tendances virales liées à un événement précis
+- réseaux sociaux
+- changements de comportement numérique
+- événements fortement discutés en ligne
 
 Pour chaque sujet :
-- Le TITRE doit annoncer le fait précis (qui, quoi, quand), pas un thème vague.
-  Mauvais exemple : "La France donne le coup d'envoi au Règlement Européen"
-  Bon exemple : "IA : les premières obligations du règlement européen entrent en
-  application le [date]"
-- La DESCRIPTION (80-120 mots) doit OBLIGATOIREMENT commencer par le fait
-  d'actualité principal, avec une date et/ou un chiffre précis dès la première phrase.
-- INTERDICTION de commencer la description par : "Dans un contexte...",
-  "Alors que...", "Cette initiative...", "Le débat autour de...",
-  "Face à..."
-- Citer au moins un acteur identifié (institution, entreprise, personnalité,
-  organisation) directement impliqué dans l'événement.
-- Inclure au moins un élément concret et vérifiable : date exacte, chiffre,
-  nom de loi/règlement, déclaration, résultat de vote ou d'étude.
-- INTERDIT : formulations vagues type "suscite des débats", "fait polémique",
-  "au cœur des discussions" sans préciser immédiatement qui débat, depuis quand,
-  et sur quel point précis.
 
-Réponds UNIQUEMENT en JSON, format strict :
+TITRE :
+- doit annoncer un événement précis
+- doit contenir qui/quoi/quand si possible
+- doit donner envie de lire un article complet
+- interdit les titres vagues
+
+Exemple interdit :
+"La révolution de l'intelligence artificielle continue"
+
+Exemple accepté :
+"OpenAI annonce le lancement de son nouveau modèle IA le [date] avec une nouvelle capacité"
+
+DESCRIPTION :
+Entre 80 et 120 mots.
+
+La première phrase doit obligatoirement :
+- annoncer le fait principal
+- contenir une date ou un chiffre précis
+- citer l'acteur principal concerné
+
+Interdiction de commencer par :
+"Dans un contexte..."
+"Alors que..."
+"Cette initiative..."
+"Le débat autour de..."
+"Face à..."
+
+La description doit contenir :
+- l'événement précis
+- les acteurs concernés
+- pourquoi cet événement est important
+- une information vérifiable
+- une source récente
+
+Le sujet sélectionné doit permettre ensuite de rédiger un article complet contenant :
+- une introduction journalistique
+- le contexte
+- les explications
+- les réactions des acteurs concernés
+- les conséquences possibles
+- une conclusion
+
+Réponds UNIQUEMENT en JSON valide :
+
 [
-  {"titre": "...", "description": "...", "source": "...", "categorie": "..."},
-  ...
+ {
+  "titre": "",
+  "description": "",
+  "source": "",
+  "categorie": ""
+ }
 ]
-Pas de texte avant/après, pas de markdown.`;
+
+Aucun texte avant ou après.
+`;
 
   const result = await model.generateContent(prompt);
   const text = result.response.text().trim();
