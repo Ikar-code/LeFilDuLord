@@ -199,6 +199,9 @@ Style rédactionnel :
 - Pas de ton publicitaire
 - Pas de formulation typique d'une IA
 
+Si le sujet semble être une annonce future, une rumeur ou une information non confirmée,
+ne rédige pas l'article comme un fait établi.
+
 
 Format obligatoire :
 
@@ -219,6 +222,9 @@ Les titres de sections dans le contenu doivent être écrits simplement.
 
 Exemple interdit :
 **Les conséquences pour les joueurs**
+
+Exemple interdit :
+### Les conséquences pour les joueurs
 
 Exemple accepté :
 Les conséquences pour les joueurs
