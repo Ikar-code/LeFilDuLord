@@ -10,6 +10,7 @@ interface Article {
   statut: string;
   score: number;
   categorie?: string;
+  image_url?: string | null;
 }
 
 function formatDate(iso: string) {
@@ -129,19 +130,38 @@ export function HomePage() {
               </div>
             </div>
             <div className="md:col-span-2 flex items-center justify-center">
-              <div
-                className="w-full aspect-[4/3] rounded-sm flex items-end p-4"
-                style={{
-                  background: "linear-gradient(135deg, #1A1209 0%, #3D2B1F 100%)",
-                }}
-              >
-                <span
-                  className="text-white/60 text-xs leading-snug"
-                  style={{ fontFamily: "var(--font-body)" }}
+              {featured.image_url ? (
+                <div className="w-full aspect-[4/3] rounded-sm overflow-hidden relative">
+                  <img
+                    src={featured.image_url}
+                    alt={featured.titre}
+                    className="w-full h-full object-cover"
+                    loading="eager"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                    <span
+                      className="text-white/90 text-xs leading-snug"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      À la une · {formatDate(featured.date_publication)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="w-full aspect-[4/3] rounded-sm flex items-end p-4"
+                  style={{
+                    background: "linear-gradient(135deg, #1A1209 0%, #3D2B1F 100%)",
+                  }}
                 >
-                  À la une · {formatDate(featured.date_publication)}
-                </span>
-              </div>
+                  <span
+                    className="text-white/60 text-xs leading-snug"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    À la une · {formatDate(featured.date_publication)}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </article>
@@ -166,40 +186,52 @@ export function HomePage() {
 
 function ArticleCard({ article }: { article: Article }) {
   return (
-    <article className="bg-card p-5 flex flex-col gap-3 hover:bg-secondary/40 transition-colors duration-150">
-      {article.categorie && (
-        <span
-          className={`inline-block self-start text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-sm ${getCategoryColor(article.categorie)}`}
-          style={{ fontFamily: "var(--font-body)" }}
-        >
-          {article.categorie}
-        </span>
-      )}
-      <Link to={`/article/${article.id}`} className="group flex-1">
-        <h3
-          className="text-lg font-bold leading-snug text-foreground group-hover:text-accent transition-colors duration-200 mb-2"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          {article.titre}
-        </h3>
-        <p
-          className="text-sm text-muted-foreground leading-relaxed line-clamp-3"
-          style={{ fontFamily: "var(--font-body)" }}
-        >
-          {getResume(article.contenu)}
-        </p>
-      </Link>
-      <div className="flex items-center justify-between pt-2 border-t border-border">
-        <time className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-body)" }}>
-          {formatDate(article.date_publication)}
-        </time>
-        <Link
-          to={`/article/${article.id}`}
-          className="text-xs font-semibold text-accent hover:underline underline-offset-2"
-          style={{ fontFamily: "var(--font-body)" }}
-        >
-          Lire →
+    <article className="bg-card flex flex-col gap-3 hover:bg-secondary/40 transition-colors duration-150">
+      {article.image_url && (
+        <Link to={`/article/${article.id}`} className="block w-full aspect-[16/9] overflow-hidden">
+          <img
+            src={article.image_url}
+            alt={article.titre}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
         </Link>
+      )}
+      <div className="p-5 flex flex-col gap-3 flex-1">
+        {article.categorie && (
+          <span
+            className={`inline-block self-start text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-sm ${getCategoryColor(article.categorie)}`}
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            {article.categorie}
+          </span>
+        )}
+        <Link to={`/article/${article.id}`} className="group flex-1">
+          <h3
+            className="text-lg font-bold leading-snug text-foreground group-hover:text-accent transition-colors duration-200 mb-2"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            {article.titre}
+          </h3>
+          <p
+            className="text-sm text-muted-foreground leading-relaxed line-clamp-3"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            {getResume(article.contenu)}
+          </p>
+        </Link>
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <time className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-body)" }}>
+            {formatDate(article.date_publication)}
+          </time>
+          <Link
+            to={`/article/${article.id}`}
+            className="text-xs font-semibold text-accent hover:underline underline-offset-2"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Lire →
+          </Link>
+        </div>
       </div>
     </article>
   );
