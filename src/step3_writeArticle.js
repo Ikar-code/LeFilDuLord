@@ -50,7 +50,7 @@ Le lecteur doit comprendre rapidement :
 - quelles sont les conséquences possibles
 
 Longueur :
-- Entre 800 et 1200 mots environ
+- Entre 1000 et 1200 mots environ
 - L'article doit ressembler à un véritable article de presse
 
 Structure obligatoire :
