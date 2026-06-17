@@ -325,3 +325,16 @@ try {
   throw new Error('Gemini a retourné un JSON invalide');
 
 }
+
+
+await log(
+  'findTopics',
+  `${topics.length} sujets trouvés`,
+  'success',
+  topics
+);
+
+
+return topics;
+
+}
