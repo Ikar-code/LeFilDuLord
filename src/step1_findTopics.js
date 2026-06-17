@@ -338,11 +338,35 @@ try {
     'Erreur JSON Gemini : ' + e.message,
     'error',
     {
-      raw: text.substring(0, 3000)
+      raw: text.substring(0, 5000)
     }
   );
 
-  throw new Error('Gemini a retourné un JSON invalide');
+
+  // tentative de récupération si Gemini coupe le JSON
+  const start = cleaned.indexOf('[');
+  const end = cleaned.lastIndexOf(']');
+
+
+  if (start !== -1 && end !== -1) {
+
+    const recovered = cleaned.substring(start, end + 1);
+
+    try {
+
+      topics = JSON.parse(recovered);
+
+    } catch {
+
+      throw new Error('Gemini a retourné un JSON tronqué');
+
+    }
+
+  } else {
+
+    throw new Error('Gemini a retourné une réponse sans JSON');
+
+  }
 
 }
 
