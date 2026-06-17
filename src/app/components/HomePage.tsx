@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { supabase } from "../../../utils/supabase/client";
 
 interface Article {
@@ -35,6 +35,9 @@ function getResume(contenu: string) {
 }
 
 export function HomePage() {
+  const [searchParams] = useSearchParams();
+  const categorieFiltre = searchParams.get("categorie");
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,11 +45,18 @@ export function HomePage() {
   useEffect(() => {
     async function load() {
       try {
-        const { data, error } = await supabase
+        setLoading(true);
+        let query = supabase
           .from("articles")
           .select("*")
           .eq("statut", "published")
           .order("date_publication", { ascending: false });
+
+        if (categorieFiltre) {
+          query = query.eq("categorie", categorieFiltre);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw new Error(error.message);
         setArticles(data || []);
@@ -58,7 +68,7 @@ export function HomePage() {
       }
     }
     load();
-  }, []);
+  }, [categorieFiltre]);
 
   if (loading) {
     return (
@@ -87,6 +97,17 @@ export function HomePage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      {categorieFiltre && (
+        <div className="mb-6">
+          <span
+            className="text-xs text-muted-foreground"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Articles dans la catégorie « {categorieFiltre} »
+          </span>
+        </div>
+      )}
+
       {featured && (
         <article className="mb-10 pb-10 border-b border-border">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-10">
@@ -176,7 +197,9 @@ export function HomePage() {
       {articles.length === 0 && (
         <div className="text-center py-20">
           <p className="text-muted-foreground text-sm" style={{ fontFamily: "var(--font-body)" }}>
-            Aucun article publié pour le moment.
+            {categorieFiltre
+              ? `Aucun article publié dans la catégorie « ${categorieFiltre} » pour le moment.`
+              : "Aucun article publié pour le moment."}
           </p>
         </div>
       )}
