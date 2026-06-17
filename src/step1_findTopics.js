@@ -3,7 +3,7 @@ import { log } from './logger.js';
 
 export async function findTopics() {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash-lite',
+    model: 'gemini-2.5-flash',
     tools: [{ googleSearch: {} }]
   });
 
@@ -14,6 +14,14 @@ Tu es rédacteur en chef de "Le Fil du Lord", un média numérique francophone
 destiné principalement aux jeunes générations.
 
 Nous sommes en ${annee}.
+
+Tu as accès à Google Search.
+
+IMPORTANT :
+Avant de proposer un sujet, tu dois effectuer une recherche réelle
+pour vérifier que l'information existe.
+
+Tu ne dois jamais inventer un événement.
 
 Mission :
 Identifier 5 sujets d'actualité RÉELS, RÉCENTS, IMPORTANTS et VÉRIFIABLES
@@ -34,15 +42,58 @@ Le média couvre principalement :
 - esport
 - innovations numériques
 
+
 Les sujets politiques, économiques ou internationaux ne doivent apparaître
 que s'ils ont un impact direct sur les jeunes, internet, les technologies,
 les loisirs numériques ou la culture populaire.
 
+
 Objectif :
 Sélectionner des événements capables de produire un article complet
-de 800 à 1200 mots intéressant pour un lecteur jeune.
+de 1000 à 1500 mots intéressant pour un lecteur jeune.
 
-RÈGLE FONDAMENTALE :
+
+RÈGLE DE VÉRIFICATION ABSOLUE :
+
+Pour chaque sujet proposé, tu dois vérifier :
+
+1. L'événement existe réellement.
+2. L'acteur cité existe réellement.
+3. La date correspond à un événement confirmé.
+4. Une source récente confirme l'information.
+5. L'annonce vient d'un acteur officiel ou d'une source fiable.
+
+
+Si tu ne trouves pas de preuve claire :
+
+SUPPRIME LE SUJET.
+
+Il vaut mieux proposer 2 vrais sujets que 5 sujets inventés.
+
+
+INTERDICTION ABSOLUE :
+
+Ne jamais créer :
+
+- faux projets
+- faux noms de produits
+- faux événements
+- fausses annonces
+- fausses dates
+- faux chiffres
+- fausses citations
+- annonces supposées officielles
+- rumeurs présentées comme des faits
+
+
+Ne jamais transformer :
+
+- une rumeur en annonce
+- une fuite en confirmation
+- une tendance en événement
+- un concept en produit disponible
+- un prototype en lancement officiel
+
 
 Chaque sujet doit correspondre à un événement précis survenu en ${annee} :
 
@@ -54,49 +105,14 @@ Chaque sujet doit correspondre à un événement précis survenu en ${annee} :
 - publication officielle
 - changement majeur d'une plateforme
 - phénomène viral confirmé
-- découverte technologique
+- découverte technologique confirmée
 - décision ayant un impact concret
-
-Interdiction :
-
-- proposer un simple thème
-- proposer une tendance sans événement précis
-- parler d'une œuvre ancienne sans actualité récente
-- inventer une information
-- transformer une rumeur en fait
-- créer un sujet uniquement parce qu'il est populaire
-- compléter une information manquante avec une supposition
-
-Avant de retenir un sujet, vérifie obligatoirement :
-
-1. Qu'est-ce qui s'est réellement passé ?
-2. Quelle est la date exacte ?
-3. Qui est concerné ?
-4. Quelle source récente confirme l'information ?
-5. Pourquoi ce sujet intéresserait un public jeune ?
-6. Est-ce une annonce officielle ou seulement une rumeur ?
-
-Si une information n'est pas vérifiable, rejette le sujet.
-
-Ne garde jamais un sujet uniquement parce qu'il semble intéressant.
-
-Un sujet doit avoir :
-- une preuve officielle
-- un acteur réel
-- un événement identifiable
-- une date ou période confirmée
-
-Refuse obligatoirement :
-- les rumeurs
-- les fuites non confirmées
-- les suppositions
-- les projets imaginaires
-- les annonces qui n'existent pas officiellement
 
 
 Domaines prioritaires :
 
 1. Gaming & jeux vidéo
+
 - nouveaux jeux annoncés
 - sorties majeures
 - studios de développement
@@ -106,31 +122,39 @@ Domaines prioritaires :
 - mises à jour importantes
 - rachats ou changements dans l'industrie
 
+
 2. Anime, manga & webtoon
+
 - nouvelles saisons annoncées
 - adaptations importantes
-- nouveaux projets
+- nouveaux projets confirmés
 - succès majeurs
 - événements liés aux licences populaires
 - plateformes de diffusion
 
+
 3. Culture web & divertissement
+
 - YouTube
 - Twitch
 - TikTok
 - créateurs de contenu
-- tendances internet
+- tendances internet confirmées
 - communautés en ligne
-- événements viraux
+- événements viraux vérifiés
+
 
 4. Technologie & intelligence artificielle
+
 - nouvelles IA
 - outils utilisés par les créateurs
 - innovations accessibles au public
 - nouvelles applications
 - impact de l'IA sur les jeunes
 
+
 5. Films, séries & streaming
+
 - Netflix
 - Disney+
 - Prime Video
@@ -138,33 +162,42 @@ Domaines prioritaires :
 - annonces importantes
 - changements des plateformes
 
+
 6. Société & actualité importante pour les jeunes
+
 - nouvelles pratiques numériques
 - éducation
 - emploi numérique
 - décisions ayant un impact sur internet ou les libertés numériques
 
+
 7. Sport & esport
+
 - compétitions majeures
 - records
 - événements esport
 - joueurs ou équipes ayant un impact culturel
 
 
+
 Pour chaque sujet :
+
 
 TITRE :
 
 - doit annoncer un événement précis
-- doit être accrocheur pour un public jeune
-- doit éviter les titres vagues
-- doit donner envie de cliquer sans être mensonger
+- doit être accrocheur
+- doit donner envie de cliquer
+- ne doit jamais exagérer
+
 
 Exemple interdit :
 "L'avenir du gaming change"
 
+
 Exemple accepté :
-"Riot Games annonce une nouvelle mise à jour majeure de Valorant le [date]"
+"Riot Games annonce une nouvelle mise à jour majeure de Valorant le 12 juin 2026"
+
 
 
 DESCRIPTION :
@@ -172,99 +205,60 @@ DESCRIPTION :
 Entre 100 et 500 mots.
 
 La première phrase doit obligatoirement :
+
 - annoncer l'événement principal
-- contenir une date ou un chiffre précis
+- contenir une date précise
 - citer l'acteur principal concerné
 
-Interdiction de commencer par :
 
-"Dans un contexte..."
-"Alors que..."
-"Cette initiative..."
-"Le débat autour de..."
-"Face à..."
+La description doit contenir obligatoirement :
 
-La description doit contenir :
-
-- l'événement précis
-- les acteurs concernés
-- pourquoi les jeunes pourraient être intéressés
-- une information vérifiable
-- une source récente
-
-
-DOSSIER JOURNALISTIQUE OBLIGATOIRE :
-
-Toutes les informations nécessaires doivent être intégrées directement
-dans le champ "description".
-
-Une autre IA utilisera uniquement ce champ pour écrire l'article.
-
-Inclure obligatoirement :
-
-Qui :
-Les personnes, entreprises, studios, organisations ou acteurs concernés.
-
-Quoi :
-L'événement précis qui s'est produit.
-
-Quand :
-La date exacte ou période confirmée.
-
-Où :
-Le lieu, pays, plateforme ou événement concerné.
-
-Pourquoi :
-Pourquoi cet événement est important.
-
-Comment :
-Comment l'événement s'est déroulé.
-
-Conséquences immédiates :
-Les premiers effets connus.
-
-Impact pour les jeunes :
-Pourquoi ce sujet concerne le public de "Le Fil du Lord".
-
-Chiffres importants :
-Uniquement des chiffres confirmés.
-
-Acteurs concernés :
-Identifier clairement les personnes, entreprises,
-communautés ou organisations impliquées.
-
-Sources :
-Indiquer les sources ayant confirmé l'information.
+- Qui ?
+- Quoi ?
+- Quand ?
+- Où ?
+- Pourquoi ?
+- Comment ?
+- Conséquences immédiates
+- Impact pour les jeunes
+- Chiffres importants vérifiés
+- Acteurs concernés
+- Sources utilisées
 
 
-IMPORTANT POUR LA RÉDACTION :
+La description doit contenir toutes les informations nécessaires
+pour qu'une autre IA puisse écrire un article complet
+sans effectuer de recherche supplémentaire.
 
-Les informations fournies dans le sujet seront utilisées par une autre IA
-pour écrire l'article.
 
-Cette IA ne fera aucune recherche supplémentaire.
+IMPORTANT POUR L'AUTRE IA :
+
+L'article sera écrit uniquement avec les informations présentes ici.
+
+Donc :
 
 Ne jamais inventer :
-- date
-- chiffre
-- citation
-- acteur
-- événement
-- conséquence
+- détails manquants
+- chiffres
+- citations
+- réactions
+- conséquences
 
-Si une information manque ou n'est pas confirmée :
+
+Si une information n'est pas confirmée :
+
 ne pas la compléter.
 
-Utiliser uniquement les informations vérifiées.
 
+Le sujet doit permettre de rédiger :
 
-Le sujet doit permettre ensuite de rédiger un article contenant :
 - une introduction dynamique
 - le contexte
 - les explications
 - les réactions
-- l'impact sur la communauté
+- l'impact communauté
 - les conséquences possibles
+
 
 
 Réponds UNIQUEMENT en JSON valide :
@@ -278,11 +272,24 @@ Réponds UNIQUEMENT en JSON valide :
  }
 ]
 
-absolument Aucun texte avant ou après.
+Aucun texte avant ou après le JSON.
 `;
 
-  const result = await model.generateContent(prompt);
+  let result;
+
+  for (let i = 0; i < 3; i++) {
+    try {
+      result = await model.generateContent(prompt);
+      break;
+    } catch (error) {
+      if (i === 2) throw error;
+  
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+  }
+  
   const text = result.response.text().trim();
+  
   const cleaned = text.replace(/```json|```/g, '').trim();
 
   let topics;
