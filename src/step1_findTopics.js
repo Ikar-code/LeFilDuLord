@@ -4,10 +4,7 @@ import { log } from './logger.js';
 export async function findTopics() {
   const model = genAI.getGenerativeModel({
   model: 'gemini-2.5-flash-lite',
-  tools: [{ googleSearch: {} }],
-  generationConfig: {
-    responseMimeType: "application/json"
-  }
+  tools: [{ googleSearch: {} }]
 });
 
   const annee = new Date().getFullYear();
