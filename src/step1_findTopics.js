@@ -149,7 +149,7 @@ Exemple accepté :
 
 DESCRIPTION :
 
-Entre 80 et 120 mots.
+Entre 100 et 300 mots.
 
 La première phrase doit obligatoirement :
 - annoncer l'événement principal
@@ -169,6 +169,71 @@ La description doit contenir :
 - pourquoi les jeunes pourraient être intéressés
 - une information vérifiable
 - une source récente
+
+
+DOSSIER JOURNALISTIQUE OBLIGATOIRE :
+
+Pour chaque sujet, fournir toutes les informations nécessaires
+pour qu'un journaliste puisse écrire un article complet
+sans effectuer de recherche supplémentaire.
+
+Inclure obligatoirement :
+
+- Qui ?
+  Les personnes, entreprises, studios, organisations ou acteurs concernés.
+
+- Quoi ?
+  L'événement précis qui s'est produit.
+
+- Quand ?
+  La date exacte ou période précise.
+
+- Où ?
+  Le lieu, pays ou plateforme concernée.
+
+- Pourquoi ?
+  Pourquoi cet événement est important.
+
+- Comment ?
+  Comment l'événement s'est déroulé.
+
+- Conséquences immédiates :
+  Les premiers effets connus.
+
+- Impact pour les jeunes :
+  Pourquoi ce sujet concerne le public de "Le Fil du Lord".
+
+- Chiffres importants :
+  Uniquement des chiffres vérifiables.
+
+- Acteurs concernés :
+  Identifier clairement les personnes, entreprises,
+  communautés ou organisations impliquées.
+
+- Sources :
+  Donner les sources ayant confirmé l'information.
+
+
+IMPORTANT POUR LA RÉDACTION :
+
+Les informations fournies dans le sujet seront utilisées par une autre IA
+pour écrire l'article.
+
+Cette IA ne fera aucune recherche supplémentaire.
+
+Ne jamais inventer :
+- date
+- chiffre
+- citation
+- acteur
+- événement
+- conséquence
+
+Si une information manque ou n'est pas confirmée,
+ne pas la compléter.
+
+Utiliser uniquement les données vérifiables disponibles.
+
 
 Le sujet doit permettre ensuite de rédiger un article contenant :
 - une introduction dynamique
