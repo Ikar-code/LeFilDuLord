@@ -189,7 +189,7 @@ Réponds UNIQUEMENT en JSON valide :
  }
 ]
 
-Aucun texte avant ou après.
+absolument Aucun texte avant ou après.
 `;
 
   const result = await model.generateContent(prompt);
