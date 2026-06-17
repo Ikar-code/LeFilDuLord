@@ -244,7 +244,7 @@ Réponds exactement dans ce format :
   return JSON.parse(cleaned);
 }
 
-export async function writeArticle(topic, scoreArticleFn, findTopicsFn) {
+export async function writeArticle(topic, scoreArticleFn) {
   const MAX_TENTATIVES = 3;
   const SEUIL = 7;
 
@@ -305,7 +305,7 @@ export async function writeArticle(topic, scoreArticleFn, findTopicsFn) {
     // CHANGER DE SUJET
     try {
 
-      const newTopics = await findTopicsFn();
+      const newTopics = await findTopics();
 
 
       if (newTopics && newTopics.length > 0) {
