@@ -243,33 +243,107 @@ Réponds exactement dans ce format :
   return JSON.parse(cleaned);
 }
 
-export async function writeArticle(topic, scoreArticleFn) {
+export async function writeArticle(topic, scoreArticleFn, findTopicsFn) {
   const MAX_TENTATIVES = 3;
   const SEUIL = 7;
+
   let tentative = 0;
   let article = null;
   let evaluation = null;
+  let currentTopic = topic;
 
   while (tentative < MAX_TENTATIVES) {
     tentative++;
+
     try {
-      article = await generateArticle(topic);
-      await log('writeArticle', `Tentative ${tentative} — Article rédigé: "${article.titre}"`, 'success');
+      article = await generateArticle(currentTopic);
+
+      await log(
+        'writeArticle',
+        `Tentative ${tentative} — Article rédigé: "${article.titre}"`,
+        'success'
+      );
+
     } catch (e) {
-      await log('writeArticle', `Tentative ${tentative} — Erreur parsing JSON: ${e.message}`, 'error');
+
+      await log(
+        'writeArticle',
+        `Tentative ${tentative} — Erreur génération: ${e.message}`,
+        'error'
+      );
+
       continue;
     }
 
+
     evaluation = await scoreArticleFn(article);
 
+
     if (evaluation.score >= SEUIL) {
-      await log('writeArticle', `Tentative ${tentative} — Score suffisant: ${evaluation.score}/10`, 'success');
-      return { article, evaluation };
+
+      await log(
+        'writeArticle',
+        `Tentative ${tentative} — Score suffisant: ${evaluation.score}/10`,
+        'success'
+      );
+
+      return {
+        article,
+        evaluation
+      };
     }
 
-    await log('writeArticle', `Tentative ${tentative} — Score insuffisant: ${evaluation.score}/10, on réessaie`, 'info');
+
+    await log(
+      'writeArticle',
+      `Tentative ${tentative} — Sujet refusé (${evaluation.score}/10), nouveau sujet demandé`,
+      'info'
+    );
+
+
+    // CHANGER DE SUJET
+    try {
+
+      const newTopics = await findTopicsFn();
+
+
+      if (newTopics && newTopics.length > 0) {
+
+        currentTopic =
+          newTopics[Math.floor(Math.random() * newTopics.length)];
+
+
+        await log(
+          'writeArticle',
+          `Nouveau sujet sélectionné : "${currentTopic.titre}"`,
+          'info'
+        );
+
+      }
+
+    } catch (e) {
+
+      await log(
+        'writeArticle',
+        `Impossible de récupérer un nouveau sujet : ${e.message}`,
+        'error'
+      );
+
+    }
+
   }
 
-  await log('writeArticle', `Échec après ${MAX_TENTATIVES} tentatives — meilleur score: ${evaluation?.score}/10`, 'error');
-  return { article, evaluation, rejeté: true };
+
+  await log(
+    'writeArticle',
+    `Échec après ${MAX_TENTATIVES} tentatives — meilleur score: ${evaluation?.score}/10`,
+    'error'
+  );
+
+
+  return {
+    article,
+    evaluation,
+    rejeté: true
+  };
 }
