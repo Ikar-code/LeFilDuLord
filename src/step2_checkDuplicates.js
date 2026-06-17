@@ -23,19 +23,6 @@ export async function filterNewTopics(topics) {
     }
   }
 
-  // Insère les nouveaux sujets dans la table 'sujets' avec statut 'nouveau'
-  for (const topic of newTopics) {
-    const { error } = await supabase.from('sujets').insert({
-      titre: topic.titre,
-      description: topic.description,
-      source: topic.source,
-      statut: 'nouveau'
-    });
-    if (error) {
-      await log('checkDuplicates', 'Erreur insertion sujet: ' + error.message, 'error', topic);
-    }
-  }
-
-  await log('checkDuplicates', `${newTopics.length} nouveaux sujets ajoutés sur ${topics.length} proposés`, 'success');
+  // Suppression de la boucle d'insertion ici
   return newTopics;
 }
