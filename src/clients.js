@@ -9,6 +9,9 @@ export const supabase = createClient(
 
 export const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// Clé Groq (utilisée dans step3_writeArticle.js et step4_scoreArticle.js)
+export const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
 // Clés des banques d'images gratuites (utilisées dans step5b_findImage.js)
 export const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
 export const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
