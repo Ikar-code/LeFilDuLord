@@ -259,7 +259,30 @@ Le sujet doit permettre de rédiger :
 - l'impact communauté
 - les conséquences possibles
 
+CONTRÔLE FINAL AVANT DE RETOURNER UN SUJET :
 
+Avant de fournir un sujet dans le JSON, fais une dernière vérification :
+
+Pour chaque sujet :
+
+- Si tu ne peux pas citer une source réelle qui confirme l'événement : SUPPRIME LE SUJET.
+- Si la date semble future ou impossible : SUPPRIME LE SUJET.
+- Si l'événement concerne un événement mondial connu, vérifie que l'année est correcte.
+- Si tu n'as trouvé aucune annonce officielle : SUPPRIME LE SUJET.
+- Ne crée jamais un événement uniquement parce qu'il serait intéressant.
+
+RÈGLE PRIORITAIRE :
+
+Un sujet faux vaut moins qu'un tableau contenant seulement 1 ou 2 sujets.
+
+La précision est plus importante que la quantité.
+
+Avant de retourner le JSON, pose-toi cette question :
+
+"Si un journaliste publie cet article demain, est-ce qu'il risque de publier une fausse information ?"
+
+Si oui :
+SUPPRIME LE SUJET.
 
 Réponds UNIQUEMENT en JSON valide :
 
