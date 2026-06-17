@@ -7,7 +7,6 @@ export async function scoreArticle(article) {
     model: 'gemini-2.5-flash-lite'
   });
 
-export async function scoreArticle(article) {
   const prompt = `
 Tu es rédacteur en chef et responsable qualité du média "Le Fil du Lord".
 Ta mission est d'évaluer la qualité journalistique de cet article avant publication.
@@ -135,4 +134,31 @@ Réponds UNIQUEMENT en JSON valide :
 }
 `;
   const result = await model.generateContent(prompt);
+
   const text = result.response.text().trim();
+
+  const cleaned = text.replace(/```json|```/g, '').trim();
+
+  let evaluation;
+
+  try {
+    evaluation = JSON.parse(cleaned);
+  } catch (e) {
+    await log(
+      'scoreArticle',
+      'Erreur de parsing JSON: ' + e.message,
+      'error',
+      { raw: text }
+    );
+    throw e;
+  }
+
+  await log(
+    'scoreArticle',
+    \`Score obtenu: \${evaluation.score}/10\`,
+    'success',
+    evaluation
+  );
+
+  return evaluation;
+}
