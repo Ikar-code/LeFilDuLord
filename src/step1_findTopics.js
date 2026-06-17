@@ -3,9 +3,12 @@ import { log } from './logger.js';
 
 export async function findTopics() {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    tools: [{ googleSearch: {} }]
-  });
+  model: 'gemini-2.5-flash-lite',
+  tools: [{ googleSearch: {} }],
+  generationConfig: {
+    responseMimeType: "application/json"
+  }
+});
 
   const annee = new Date().getFullYear();
 
@@ -272,6 +275,13 @@ Réponds UNIQUEMENT en JSON valide :
  }
 ]
 
+
+IMPORTANT :
+Ne donne aucune explication.
+Ne donne aucune phrase avant le JSON.
+Retourne uniquement le tableau JSON demandé.
+Toutes les chaînes de texte doivent être échappées correctement.
+
 Aucun texte avant ou après le JSON.
 `;
 
@@ -289,17 +299,29 @@ Aucun texte avant ou après le JSON.
   }
   
   const text = result.response.text().trim();
-  
-  const cleaned = text.replace(/```json|```/g, '').trim();
 
-  let topics;
-  try {
-    topics = JSON.parse(cleaned);
-  } catch (e) {
-    await log('findTopics', 'Erreur de parsing JSON: ' + e.message, 'error', { raw: text });
-    throw e;
-  }
+const cleaned = text
+  .replace(/```json/g, '')
+  .replace(/```/g, '')
+  .trim();
 
-  await log('findTopics', `${topics.length} sujets trouvés`, 'success', topics);
-  return topics;
+let topics;
+
+try {
+
+  topics = JSON.parse(cleaned);
+
+} catch (e) {
+
+  await log(
+    'findTopics',
+    'Erreur JSON Gemini : ' + e.message,
+    'error',
+    {
+      raw: text.substring(0, 3000)
+    }
+  );
+
+  throw new Error('Gemini a retourné un JSON invalide');
+
 }
