@@ -12,6 +12,7 @@ interface Article {
   score: number;
   categorie?: string;
   sujet_id?: string;
+  image_url?: string | null;
 }
 
 function formatDate(iso: string) {
@@ -156,6 +157,17 @@ export function ArticlePage() {
           </div>
         </div>
       </header>
+
+      {article.image_url && (
+        <div className="mb-8 -mt-2 rounded-sm overflow-hidden">
+          <img
+            src={article.image_url}
+            alt={article.titre}
+            className="w-full h-auto max-h-[480px] object-cover"
+            loading="eager"
+          />
+        </div>
+      )}
 
       <div className="prose-section">
         {paragraphs.map((para, i) => (
