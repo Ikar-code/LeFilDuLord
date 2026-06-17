@@ -1,5 +1,6 @@
 import { GROQ_API_KEY } from './clients.js';
 import { log } from './logger.js';
+import { findTopics } from './step1_findTopics.js';
 
 async function callGroq(prompt) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
