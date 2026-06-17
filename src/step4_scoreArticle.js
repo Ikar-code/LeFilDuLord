@@ -1,6 +1,5 @@
 import { genAI } from './clients.js';
 import { log } from './logger.js';
-import { findTopics } from './step1_findTopics.js';
 
 export async function scoreArticle(article) {
 
