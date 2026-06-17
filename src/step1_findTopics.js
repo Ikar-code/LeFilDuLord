@@ -149,7 +149,7 @@ Exemple accepté :
 
 DESCRIPTION :
 
-Entre 100 et 300 mots.
+Entre 100 et 500 mots.
 
 La première phrase doit obligatoirement :
 - annoncer l'événement principal
