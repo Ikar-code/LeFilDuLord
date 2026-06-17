@@ -1,29 +1,11 @@
-import { GROQ_API_KEY } from './clients.js';
+import { genAI } from './clients.js';
 import { log } from './logger.js';
 
-async function callGroq(prompt) {
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${GROQ_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: 'qwen/qwen3-32b',
-      reasoning_effort: 'none', // pas besoin du mode raisonnement pour du scoring direct
-      response_format: { type: 'json_object' },
-      messages: [{ role: 'user', content: prompt }]
-    })
+export async function scoreArticle(article) {
+
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.5-flash-lite'
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Groq: statut HTTP ${response.status} — ${errorText}`);
-  }
-
-  const data = await response.json();
-  return data.choices[0].message.content.trim();
-}
 
 export async function scoreArticle(article) {
   const prompt = `
