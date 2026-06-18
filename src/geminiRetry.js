@@ -10,10 +10,8 @@ function isQuotaJournalierEpuise(error) {
 
   return (
     message.includes('GenerateRequestsPerDay') ||
-    message.includes('PerDay') ||
-    message.includes('You exceeded your current quota') ||
-    message.includes('current quota') ||
-    message.includes('billing details')
+    message.includes('PerDayPerProject') ||
+    message.includes('PerDayPerModel')
   );
 }
 
@@ -21,7 +19,13 @@ function isQuotaJournalierEpuise(error) {
 // ou réponse vide de Gemini) pour laquelle un retry après un court délai a du sens.
 function isErreurTemporaire(error) {
   const message = error?.message || '';
-  return message.includes('503') || message.includes('429') || message.includes('REPONSE_VIDE');
+
+  return (
+    message.includes('503') ||
+    message.includes('429') ||
+    message.includes('Too Many Requests') ||
+    message.includes('REPONSE_VIDE')
+  );
 }
 
 // Essaie d'extraire le délai suggéré par Gemini dans son erreur (retryDelay), sinon utilise un défaut.
@@ -49,7 +53,7 @@ function extraireDelaiAttente(error, delaiParDefautMs) {
 //     },
 //     'findTopics'
 //   );
-export async function callGeminiWithRetry(buildAndCall, etapeNom, maxTentativesParCle = 3) {
+export async function callGeminiWithRetry(buildAndCall, etapeNom, maxTentativesParCle = 5) {
   if (GEMINI_API_KEYS.length === 0) {
     throw new Error('Aucune clé Gemini configurée (GEMINI_API_KEY / GEMINI_API_KEY_2)');
   }
