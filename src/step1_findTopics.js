@@ -71,6 +71,14 @@ Avant de retenir un sujet, vérifie :
 
 Si une information n'est pas vérifiable, rejette le sujet.
 
+IMPORTANT :
+
+Ne jamais proposer un événement situé dans le futur.
+
+L'événement doit :
+
+- avoir déjà eu lieu
+
 Domaines prioritaires :
 
 1. Gaming & jeux vidéo
