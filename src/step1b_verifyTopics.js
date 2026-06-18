@@ -18,15 +18,41 @@ CONFIRMÉ par une source identifiable.
 Sujets à vérifier :
 ${JSON.stringify(topics, null, 2)}
 
-Pour chaque sujet, vérifie :
-1. Est-ce que cette annonce, ce produit ou cet événement existe réellement ?
-2. Est-ce qu'une entreprise, un studio, une organisation ou une personne l'a réellement annoncé ?
-3. La date mentionnée est-elle cohérente et vérifiable ?
-4. Existe-t-il une source crédible (site officiel, communiqué, compte officiel vérifié) qui confirme l'information ?
+MÉTHODE DE VÉRIFICATION OBLIGATOIRE, pour CHAQUE sujet, dans cet ordre :
+
+1. Recherche l'événement décrit dans le titre/la description via la recherche web.
+2. Identifie une source précise (site officiel, communiqué de presse, compte officiel
+   vérifié, média reconnu) qui confirme EXACTEMENT cet événement — pas un événement
+   similaire, pas une rumeur, pas une déduction.
+3. Vérifie que les détails (acteur, date, produit/œuvre, studio, plateforme) cités dans
+   le sujet correspondent PRÉCISÉMENT à ce que dit la source trouvée. Une seule erreur
+   factuelle (mauvais studio, mauvaise date, mauvais acteur) invalide le sujet entier.
+4. Si tu ne trouves AUCUNE source qui confirme explicitement cet événement précis,
+   EXCLUS LE SUJET — même s'il te semble plausible ou cohérent avec d'autres
+   informations que tu connais.
+
+ERREURS À NE JAMAIS COMMETTRE :
+- Valider un sujet parce qu'il "sonne plausible" sans avoir trouvé de source qui le
+  confirme explicitement.
+- Confondre une œuvre, un studio ou un produit existant avec celui mentionné dans le
+  sujet (ex: un studio qui existe et qui a déjà produit d'autres œuvres ne prouve pas
+  qu'il a annoncé CE projet précis).
+- Combler un manque d'information avec une déduction ou une supposition logique.
+- Valider un sujet basé sur une seule mention non officielle (forum, réseau social non
+  vérifié, blog non officiel).
 
 RÈGLE PRIORITAIRE :
-Si tu n'es pas certain à 100% qu'un sujet est réel, EXCLUS-LE.
-Il vaut mieux retourner une liste plus courte que d'inclure un sujet invérifiable ou inventé.
+Si tu n'es pas certain à 100% qu'un sujet est réel ET que ses détails sont exacts,
+EXCLUS-LE. Il vaut mieux retourner une liste vide que d'inclure un seul sujet
+invérifiable, inventé, ou partiellement faux.
+
+Avant de répondre, pour chaque sujet, pose-toi mentalement ces questions :
+- Quelle source précise confirme cet événement exact (pas un événement similaire) ?
+- Tous les détails (acteur, date, nom du produit/œuvre, plateforme) correspondent-ils
+  exactement à cette source ?
+- Si un journaliste publiait cet article tel quel demain, risquerait-il de publier une
+  information fausse ou inexacte sur un détail ?
+Si la réponse à la dernière question est "oui" ou "peut-être" : EXCLUS LE SUJET.
 
 Réponds UNIQUEMENT en JSON valide, sous la forme d'un tableau contenant uniquement
 les sujets validés (reprends exactement les mêmes champs que ceux fournis en entrée,
