@@ -1,13 +1,7 @@
-import { genAI } from './clients.js';
 import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
 export async function scoreArticle(article) {
-
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash'
-  });
-
   const prompt = `
 Tu es rédacteur en chef et responsable qualité du média "Le Fil du Lord".
 Ta mission est d'évaluer la qualité journalistique de cet article avant publication.
@@ -136,9 +130,24 @@ Réponds UNIQUEMENT en JSON valide :
 `;
 
   const result = await callGeminiWithRetry(
-    () => model.generateContent(prompt),
+    async (genAI) => {
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const r = await model.generateContent(prompt);
+      const t = r.response.text().trim();
+      if (!t) {
+        const candidate = r.response.candidates?.[0];
+        await log('scoreArticle', 'Réponse Gemini vide (aucun texte généré), nouvelle tentative', 'info', {
+          finishReason: candidate?.finishReason,
+          safetyRatings: candidate?.safetyRatings,
+          promptFeedback: r.response.promptFeedback
+        });
+        throw new Error('REPONSE_VIDE: Gemini a renvoyé une réponse sans texte');
+      }
+      return r;
+    },
     'scoreArticle'
   );
+
   const text = result.response.text().trim();
   const cleaned = text.replace(/```json|```/g, '').trim();
 
