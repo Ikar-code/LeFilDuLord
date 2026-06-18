@@ -1,5 +1,6 @@
 import { genAI } from './clients.js';
 import { log } from './logger.js';
+import { callGeminiWithRetry } from './geminiRetry.js';
 
 export async function scoreArticle(article) {
 
@@ -133,8 +134,11 @@ Réponds UNIQUEMENT en JSON valide :
   "commentaire": "explication courte"
 }
 `;
-  
-  const result = await model.generateContent(prompt);
+
+  const result = await callGeminiWithRetry(
+    () => model.generateContent(prompt),
+    'scoreArticle'
+  );
   const text = result.response.text().trim();
   const cleaned = text.replace(/```json|```/g, '').trim();
 
