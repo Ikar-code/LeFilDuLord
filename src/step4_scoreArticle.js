@@ -1,11 +1,11 @@
 import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
-const aujourdHui = new Date().toLocaleDateString('fr-FR');
-
 export async function scoreArticle(article) {
-
+  const aujourdHui = new Date().toLocaleDateString('fr-FR');
+  
   const prompt = `
+  
 Nous sommes le ${aujourdHui}.
 
 Tu es rédacteur en chef et responsable qualité du média "Le Fil du Lord".
