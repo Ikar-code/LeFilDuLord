@@ -10,11 +10,11 @@ function isQuotaJournalierEpuise(error) {
   );
 }
 
-// Détecte une erreur temporaire (surcharge 503, ou rate limit par minute 429)
-// pour laquelle un retry après un court délai a du sens.
+// Détecte une erreur temporaire (surcharge 503, rate limit par minute 429,
+// ou réponse vide de Gemini) pour laquelle un retry après un court délai a du sens.
 function isErreurTemporaire(error) {
   const message = error?.message || '';
-  return message.includes('503') || message.includes('429');
+  return message.includes('503') || message.includes('429') || message.includes('REPONSE_VIDE');
 }
 
 // Essaie d'extraire le délai suggéré par Gemini dans son erreur (retryDelay), sinon utilise un défaut.
