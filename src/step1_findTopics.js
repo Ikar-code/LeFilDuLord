@@ -1,11 +1,12 @@
 import { genAI } from './clients.js';
 import { log } from './logger.js';
+import { callGeminiWithRetry } from './geminiRetry.js';
 
 export async function findTopics() {
   const model = genAI.getGenerativeModel({
-  model: 'gemini-2.5-flash',
-  tools: [{ googleSearch: {} }]
-});
+    model: 'gemini-2.5-flash-lite',
+    tools: [{ googleSearch: {} }]
+  });
 
   const annee = new Date().getFullYear();
 
@@ -14,14 +15,6 @@ Tu es rédacteur en chef de "Le Fil du Lord", un média numérique francophone
 destiné principalement aux jeunes générations.
 
 Nous sommes en ${annee}.
-
-Tu as accès à Google Search.
-
-IMPORTANT :
-Avant de proposer un sujet, tu dois effectuer une recherche réelle
-pour vérifier que l'information existe.
-
-Tu ne dois jamais inventer un événement.
 
 Mission :
 Identifier 5 sujets d'actualité RÉELS, RÉCENTS, IMPORTANTS et VÉRIFIABLES
@@ -42,58 +35,15 @@ Le média couvre principalement :
 - esport
 - innovations numériques
 
-
 Les sujets politiques, économiques ou internationaux ne doivent apparaître
 que s'ils ont un impact direct sur les jeunes, internet, les technologies,
 les loisirs numériques ou la culture populaire.
 
-
 Objectif :
 Sélectionner des événements capables de produire un article complet
-de 1000 à 1500 mots intéressant pour un lecteur jeune.
+de 800 à 1200 mots intéressant pour un lecteur jeune.
 
-
-RÈGLE DE VÉRIFICATION ABSOLUE :
-
-Pour chaque sujet proposé, tu dois vérifier :
-
-1. L'événement existe réellement.
-2. L'acteur cité existe réellement.
-3. La date correspond à un événement confirmé.
-4. Une source récente confirme l'information.
-5. L'annonce vient d'un acteur officiel ou d'une source fiable.
-
-
-Si tu ne trouves pas de preuve claire :
-
-SUPPRIME LE SUJET.
-
-Il vaut mieux proposer 2 vrais sujets que 5 sujets inventés.
-
-
-INTERDICTION ABSOLUE :
-
-Ne jamais créer :
-
-- faux projets
-- faux noms de produits
-- faux événements
-- fausses annonces
-- fausses dates
-- faux chiffres
-- fausses citations
-- annonces supposées officielles
-- rumeurs présentées comme des faits
-
-
-Ne jamais transformer :
-
-- une rumeur en annonce
-- une fuite en confirmation
-- une tendance en événement
-- un concept en produit disponible
-- un prototype en lancement officiel
-
+RÈGLE FONDAMENTALE :
 
 Chaque sujet doit correspondre à un événement précis survenu en ${annee} :
 
@@ -105,14 +55,31 @@ Chaque sujet doit correspondre à un événement précis survenu en ${annee} :
 - publication officielle
 - changement majeur d'une plateforme
 - phénomène viral confirmé
-- découverte technologique confirmée
+- découverte technologique
 - décision ayant un impact concret
 
+Interdiction :
+
+- proposer un simple thème
+- proposer une tendance sans événement précis
+- parler d'une œuvre ancienne sans actualité récente
+- inventer une information
+- transformer une rumeur en fait
+- créer un sujet uniquement parce qu'il est populaire
+
+Avant de retenir un sujet, vérifie :
+
+1. Qu'est-ce qui s'est réellement passé ?
+2. Quelle est la date exacte ?
+3. Qui est concerné ?
+4. Quelle source récente confirme l'information ?
+5. Pourquoi ce sujet intéresserait un public jeune ?
+
+Si une information n'est pas vérifiable, rejette le sujet.
 
 Domaines prioritaires :
 
 1. Gaming & jeux vidéo
-
 - nouveaux jeux annoncés
 - sorties majeures
 - studios de développement
@@ -122,39 +89,31 @@ Domaines prioritaires :
 - mises à jour importantes
 - rachats ou changements dans l'industrie
 
-
 2. Anime, manga & webtoon
-
 - nouvelles saisons annoncées
 - adaptations importantes
-- nouveaux projets confirmés
+- nouveaux projets
 - succès majeurs
 - événements liés aux licences populaires
 - plateformes de diffusion
 
-
 3. Culture web & divertissement
-
 - YouTube
 - Twitch
 - TikTok
 - créateurs de contenu
-- tendances internet confirmées
+- tendances internet
 - communautés en ligne
-- événements viraux vérifiés
-
+- événements viraux
 
 4. Technologie & intelligence artificielle
-
 - nouvelles IA
 - outils utilisés par les créateurs
 - innovations accessibles au public
 - nouvelles applications
 - impact de l'IA sur les jeunes
 
-
 5. Films, séries & streaming
-
 - Netflix
 - Disney+
 - Prime Video
@@ -162,127 +121,63 @@ Domaines prioritaires :
 - annonces importantes
 - changements des plateformes
 
-
 6. Société & actualité importante pour les jeunes
-
 - nouvelles pratiques numériques
 - éducation
 - emploi numérique
 - décisions ayant un impact sur internet ou les libertés numériques
 
-
 7. Sport & esport
-
 - compétitions majeures
 - records
 - événements esport
 - joueurs ou équipes ayant un impact culturel
 
-
-
 Pour chaque sujet :
-
 
 TITRE :
 
 - doit annoncer un événement précis
-- doit être accrocheur
-- doit donner envie de cliquer
-- ne doit jamais exagérer
-
+- doit être accrocheur pour un public jeune
+- doit éviter les titres vagues
+- doit donner envie de cliquer sans être mensonger
 
 Exemple interdit :
 "L'avenir du gaming change"
 
-
 Exemple accepté :
-"Riot Games annonce une nouvelle mise à jour majeure de Valorant le 12 juin 2026"
-
-
+"Riot Games annonce une nouvelle mise à jour majeure de Valorant le [date]"
 
 DESCRIPTION :
 
-Entre 100 et 500 mots.
+Entre 80 et 120 mots.
 
 La première phrase doit obligatoirement :
-
 - annoncer l'événement principal
-- contenir une date précise
+- contenir une date ou un chiffre précis
 - citer l'acteur principal concerné
 
+Interdiction de commencer par :
+"Dans un contexte..."
+"Alors que..."
+"Cette initiative..."
+"Le débat autour de..."
+"Face à..."
 
-La description doit contenir obligatoirement :
+La description doit contenir :
+- l'événement précis
+- les acteurs concernés
+- pourquoi les jeunes pourraient être intéressés
+- une information vérifiable
+- une source récente
 
-- Qui ?
-- Quoi ?
-- Quand ?
-- Où ?
-- Pourquoi ?
-- Comment ?
-- Conséquences immédiates
-- Impact pour les jeunes
-- Chiffres importants vérifiés
-- Acteurs concernés
-- Sources utilisées
-
-
-La description doit contenir toutes les informations nécessaires
-pour qu'une autre IA puisse écrire un article complet
-sans effectuer de recherche supplémentaire.
-
-
-IMPORTANT POUR L'AUTRE IA :
-
-L'article sera écrit uniquement avec les informations présentes ici.
-
-Donc :
-
-Ne jamais inventer :
-- détails manquants
-- chiffres
-- citations
-- réactions
-- conséquences
-
-
-Si une information n'est pas confirmée :
-
-ne pas la compléter.
-
-
-Le sujet doit permettre de rédiger :
-
+Le sujet doit permettre ensuite de rédiger un article contenant :
 - une introduction dynamique
 - le contexte
 - les explications
 - les réactions
-- l'impact communauté
+- l'impact sur la communauté
 - les conséquences possibles
-
-CONTRÔLE FINAL AVANT DE RETOURNER UN SUJET :
-
-Avant de fournir un sujet dans le JSON, fais une dernière vérification :
-
-Pour chaque sujet :
-
-- Si tu ne peux pas citer une source réelle qui confirme l'événement : SUPPRIME LE SUJET.
-- Si la date semble future ou impossible : SUPPRIME LE SUJET.
-- Si l'événement concerne un événement mondial connu, vérifie que l'année est correcte.
-- Si tu n'as trouvé aucune annonce officielle : SUPPRIME LE SUJET.
-- Ne crée jamais un événement uniquement parce qu'il serait intéressant.
-
-RÈGLE PRIORITAIRE :
-
-Un sujet faux vaut moins qu'un tableau contenant seulement 1 ou 2 sujets.
-
-La précision est plus importante que la quantité.
-
-Avant de retourner le JSON, pose-toi cette question :
-
-"Si un journaliste publie cet article demain, est-ce qu'il risque de publier une fausse information ?"
-
-Si oui :
-SUPPRIME LE SUJET.
 
 Réponds UNIQUEMENT en JSON valide :
 
@@ -295,90 +190,36 @@ Réponds UNIQUEMENT en JSON valide :
  }
 ]
 
-
-IMPORTANT :
-Ne donne aucune explication.
-Ne donne aucune phrase avant le JSON.
-Retourne uniquement le tableau JSON demandé.
-Toutes les chaînes de texte doivent être échappées correctement.
-
-Aucun texte avant ou après le JSON.
+Aucun texte avant ou après.
 `;
 
-  let result;
-
-  for (let i = 0; i < 3; i++) {
-    try {
-      result = await model.generateContent(prompt);
-      break;
-    } catch (error) {
-      if (i === 2) throw error;
-  
-      await new Promise(resolve => setTimeout(resolve, 3000));
-    }
-  }
-  
-  const text = result.response.text().trim();
-
-const cleaned = text
-  .replace(/```json/g, '')
-  .replace(/```/g, '')
-  .trim();
-
-let topics;
-
-try {
-
-  topics = JSON.parse(cleaned);
-
-} catch (e) {
-
-  await log(
-    'findTopics',
-    'Erreur JSON Gemini : ' + e.message,
-    'error',
-    {
-      raw: text.substring(0, 5000)
-    }
+  const result = await callGeminiWithRetry(
+    () => model.generateContent(prompt),
+    'findTopics'
   );
+  const text = result.response.text().trim();
+  const cleaned = text.replace(/```json|```/g, '').trim();
 
+  let topics;
+  try {
+    topics = JSON.parse(cleaned);
+  } catch (e) {
+    await log('findTopics', 'Erreur de parsing JSON: ' + e.message, 'error', { raw: text.substring(0, 3000) });
 
-  // tentative de récupération si Gemini coupe le JSON
-  const start = cleaned.indexOf('[');
-  const end = cleaned.lastIndexOf(']');
-
-
-  if (start !== -1 && end !== -1) {
-
-    const recovered = cleaned.substring(start, end + 1);
-
-    try {
-
-      topics = JSON.parse(recovered);
-
-    } catch {
-
-      throw new Error('Gemini a retourné un JSON tronqué');
-
+    // Tentative de récupération si la réponse a été tronquée
+    const start = cleaned.indexOf('[');
+    const end = cleaned.lastIndexOf(']');
+    if (start !== -1 && end !== -1) {
+      try {
+        topics = JSON.parse(cleaned.substring(start, end + 1));
+      } catch {
+        throw new Error('Gemini a retourné un JSON tronqué');
+      }
+    } else {
+      throw new Error('Gemini a retourné une réponse sans JSON');
     }
-
-  } else {
-
-    throw new Error('Gemini a retourné une réponse sans JSON');
-
   }
 
-}
-
-
-await log(
-  'findTopics',
-  `${topics.length} sujets trouvés`,
-  'success',
-  topics
-);
-
-
-return topics;
-
+  await log('findTopics', `${topics.length} sujets trouvés`, 'success', topics);
+  return topics;
 }
