@@ -1,13 +1,7 @@
-import { genAI } from './clients.js';
 import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
 export async function findTopics() {
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash-lite',
-    tools: [{ googleSearch: {} }]
-  });
-
   const annee = new Date().getFullYear();
 
   const prompt = `
@@ -194,7 +188,11 @@ Aucun texte avant ou après.
 `;
 
   const result = await callGeminiWithRetry(
-    async () => {
+    async (genAI) => {
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite',
+        tools: [{ googleSearch: {} }]
+      });
       const r = await model.generateContent(prompt);
       const t = r.response.text().trim();
       if (!t) {
@@ -210,6 +208,7 @@ Aucun texte avant ou après.
     },
     'findTopics'
   );
+
   const text = result.response.text().trim();
   const cleaned = text.replace(/```json|```/g, '').trim();
 
