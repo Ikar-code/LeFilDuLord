@@ -7,7 +7,14 @@ export const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-export const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Liste des clés Gemini disponibles, dans l'ordre d'utilisation.
+// GEMINI_API_KEY est essayée en premier, puis GEMINI_API_KEY_2 si le quota
+// journalier de la première est épuisé sur le modèle demandé.
+export const GEMINI_API_KEYS = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2].filter(Boolean);
+
+// Conservé pour compatibilité avec du code existant qui importerait directement genAI
+// (utilise la 1ère clé uniquement, sans bascule automatique).
+export const genAI = new GoogleGenerativeAI(GEMINI_API_KEYS[0]);
 
 // Clé Groq (utilisée dans step3_writeArticle.js et step4_scoreArticle.js)
 export const GROQ_API_KEY = process.env.GROQ_API_KEY;
