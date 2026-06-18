@@ -194,7 +194,20 @@ Aucun texte avant ou après.
 `;
 
   const result = await callGeminiWithRetry(
-    () => model.generateContent(prompt),
+    async () => {
+      const r = await model.generateContent(prompt);
+      const t = r.response.text().trim();
+      if (!t) {
+        const candidate = r.response.candidates?.[0];
+        await log('findTopics', 'Réponse Gemini vide (aucun texte généré), nouvelle tentative', 'info', {
+          finishReason: candidate?.finishReason,
+          safetyRatings: candidate?.safetyRatings,
+          promptFeedback: r.response.promptFeedback
+        });
+        throw new Error('REPONSE_VIDE: Gemini a renvoyé une réponse sans texte');
+      }
+      return r;
+    },
     'findTopics'
   );
   const text = result.response.text().trim();
