@@ -89,3 +89,52 @@ export async function insertSujets(topics) {
   await log('checkDuplicates', `${data.length} sujets validés enregistrés en base`, 'success', data);
   return data;
 }
+
+// Enregistre l'échec d'un sujet (score insuffisant après writeArticle).
+// Si le sujet atteint 2 échecs au total, il est supprimé de la base
+// (sinon il continuerait à boucler indéfiniment via getNextPendingTopic).
+// Sinon, on incrémente simplement son compteur d'échecs pour lui laisser une 2e chance.
+export async function enregistrerEchecSujet(sujetId) {
+  const { data: sujetActuel, error: erreurLecture } = await supabase
+    .from('sujets')
+    .select('nombre_echecs, titre')
+    .eq('id', sujetId)
+    .single();
+
+  if (erreurLecture) {
+    await log('checkDuplicates', 'Erreur lecture sujet pour incrément échec: ' + erreurLecture.message, 'error');
+    return;
+  }
+
+  const nouveauCompteur = (sujetActuel.nombre_echecs || 0) + 1;
+  const SEUIL_SUPPRESSION = 2;
+
+  if (nouveauCompteur >= SEUIL_SUPPRESSION) {
+    const { error: erreurSuppression } = await supabase.from('sujets').delete().eq('id', sujetId);
+    if (erreurSuppression) {
+      await log('checkDuplicates', 'Erreur suppression sujet après échecs répétés: ' + erreurSuppression.message, 'error');
+    } else {
+      await log(
+        'checkDuplicates',
+        `Sujet supprimé après ${nouveauCompteur} échecs: "${sujetActuel.titre}"`,
+        'info'
+      );
+    }
+    return;
+  }
+
+  const { error: erreurMaj } = await supabase
+    .from('sujets')
+    .update({ nombre_echecs: nouveauCompteur })
+    .eq('id', sujetId);
+
+  if (erreurMaj) {
+    await log('checkDuplicates', 'Erreur mise à jour compteur échec: ' + erreurMaj.message, 'error');
+  } else {
+    await log(
+      'checkDuplicates',
+      `Échec enregistré (${nouveauCompteur}/${SEUIL_SUPPRESSION}) pour "${sujetActuel.titre}", une chance restante`,
+      'info'
+    );
+  }
+}
