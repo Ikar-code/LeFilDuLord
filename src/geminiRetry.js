@@ -9,7 +9,13 @@ function isQuotaJournalierEpuise(error) {
   const message = error?.message || '';
   return (
     message.includes('GenerateRequestsPerDayPerProjectPerModel') ||
-    message.includes('PerDay')
+    message.includes('GenerateRequestsPerDayPerModel') ||
+    message.includes('quota') ||
+    message.includes('Quota') ||
+    message.includes('You exceeded your current quota') ||
+    message.includes('current quota') ||
+    message.includes('billing details') ||
+    message.includes('limit:')
   );
 }
 
