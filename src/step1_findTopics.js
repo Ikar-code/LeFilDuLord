@@ -75,6 +75,11 @@ l'événement principal et citer l'acteur concerné.
 SOURCE :
 Reprends l'url du résultat scrapé correspondant.
 
+EXTRAIT_BRUT :
+Reprends EXACTEMENT et INTÉGRALEMENT le champ "extrait" du résultat scrapé
+correspondant, sans le résumer, le raccourcir ni le reformuler. Ce texte brut
+sera utilisé plus tard pour ne perdre aucun détail que ta description aurait omis.
+
 CATEGORIE :
 Une des catégories listées ci-dessus.
 
@@ -89,6 +94,7 @@ Réponds UNIQUEMENT en JSON valide :
   "titre": "",
   "description": "",
   "source": "",
+  "extrait_brut": "",
   "categorie": ""
  }
 ]
