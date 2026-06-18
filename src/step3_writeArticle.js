@@ -265,6 +265,7 @@ export async function writeArticle(topic, scoreArticleFn, getNextPendingTopicFn 
   let article = null;
   let evaluation = null;
   let currentTopic = topic;
+  let sujetArticleActuel = topic; // le sujet qui correspond réellement à `article`/`evaluation`
   const sujetsEssayes = [topic];
 
   // Sujets déjà essayés (par titre) pour ne jamais repiocher le même sujet rejeté.
@@ -275,6 +276,7 @@ export async function writeArticle(topic, scoreArticleFn, getNextPendingTopicFn 
 
     try {
       article = await generateArticle(currentTopic);
+      sujetArticleActuel = currentTopic;
 
       await log(
         'writeArticle',
@@ -290,7 +292,7 @@ export async function writeArticle(topic, scoreArticleFn, getNextPendingTopicFn 
 
     if (evaluation.score >= SEUIL) {
       await log('writeArticle', `Tentative ${tentative} — Score suffisant: ${evaluation.score}/10`, 'success');
-      return { article, evaluation, sujetUtilise: currentTopic, sujetsEssayes };
+      return { article, evaluation, sujetUtilise: sujetArticleActuel, sujetsEssayes };
     }
 
     await log(
@@ -326,5 +328,5 @@ export async function writeArticle(topic, scoreArticleFn, getNextPendingTopicFn 
 
   await log('writeArticle', `Échec après ${MAX_TENTATIVES} tentatives — meilleur score: ${evaluation?.score}/10`, 'error');
 
-  return { article, evaluation, sujetUtilise: currentTopic, sujetsEssayes, rejeté: true };
+  return { article, evaluation, sujetUtilise: sujetArticleActuel, sujetsEssayes, rejeté: true };
 }
