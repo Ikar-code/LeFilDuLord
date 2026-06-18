@@ -1,7 +1,10 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GEMINI_API_KEYS } from './clients.js';
 import { log } from './logger.js';
 
 // Détecte si une erreur Gemini correspond à un quota JOURNALIER épuisé.
-// Dans ce cas, retenter dans la même journée ne sert à rien.
+// Dans ce cas, retenter avec la MÊME clé ne sert à rien avant demain,
+// mais une AUTRE clé peut encore avoir du quota disponible.
 function isQuotaJournalierEpuise(error) {
   const message = error?.message || '';
   return (
@@ -27,50 +30,67 @@ function extraireDelaiAttente(error, delaiParDefautMs) {
   return delaiParDefautMs;
 }
 
-// Exécute un appel Gemini avec retry automatique :
-// - 503 ou 429 "par minute" → attend et retente (jusqu'à MAX_TENTATIVES fois)
-// - 429 "quota journalier épuisé" → abandonne immédiatement avec un message clair
+// Exécute un appel Gemini avec :
+// - bascule automatique vers la clé API suivante si le quota journalier de la clé actuelle est épuisé
+// - retry avec backoff sur erreurs temporaires (503, 429 par minute, réponse vide)
+// - abandon uniquement si TOUTES les clés ont leur quota journalier épuisé
+//
+// `buildAndCall(genAI)` doit créer le modèle à partir de l'instance genAI fournie et appeler generateContent.
 //
 // Utilisation :
 //   const result = await callGeminiWithRetry(
-//     () => model.generateContent(prompt),
+//     (genAI) => {
+//       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite', tools: [{ googleSearch: {} }] });
+//       return model.generateContent(prompt);
+//     },
 //     'findTopics'
 //   );
-export async function callGeminiWithRetry(fn, etapeNom, maxTentatives = 3) {
+export async function callGeminiWithRetry(buildAndCall, etapeNom, maxTentativesParCle = 3) {
+  if (GEMINI_API_KEYS.length === 0) {
+    throw new Error('Aucune clé Gemini configurée (GEMINI_API_KEY / GEMINI_API_KEY_2)');
+  }
+
   let derniereErreur;
 
-  for (let tentative = 1; tentative <= maxTentatives; tentative++) {
-    try {
-      return await fn();
-    } catch (error) {
-      derniereErreur = error;
+  for (let cleIndex = 0; cleIndex < GEMINI_API_KEYS.length; cleIndex++) {
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEYS[cleIndex]);
 
-      if (isQuotaJournalierEpuise(error)) {
-        await log(
-          etapeNom,
-          'Quota journalier Gemini épuisé pour ce modèle, abandon (pas de retry possible avant demain)',
-          'error',
-          { message: error.message }
-        );
-        throw new Error(`Quota journalier Gemini épuisé (${etapeNom}), nouvelle tentative inutile aujourd'hui.`);
+    for (let tentative = 1; tentative <= maxTentativesParCle; tentative++) {
+      try {
+        return await buildAndCall(genAI);
+      } catch (error) {
+        derniereErreur = error;
+
+        if (isQuotaJournalierEpuise(error)) {
+          const ySuivante = cleIndex + 1 < GEMINI_API_KEYS.length;
+          await log(
+            etapeNom,
+            `Quota journalier épuisé sur la clé Gemini #${cleIndex + 1}` +
+              (ySuivante ? ', bascule vers la clé suivante' : ', plus aucune clé disponible'),
+            ySuivante ? 'info' : 'error',
+            { message: error.message }
+          );
+          break; // on sort de la boucle de tentatives pour passer à la clé suivante (ou abandonner)
+        }
+
+        if (isErreurTemporaire(error) && tentative < maxTentativesParCle) {
+          const delai = extraireDelaiAttente(error, 5000 * tentative);
+          await log(
+            etapeNom,
+            `Erreur temporaire Gemini (clé #${cleIndex + 1}, tentative ${tentative}/${maxTentativesParCle}), nouvelle tentative dans ${Math.round(delai / 1000)}s`,
+            'info',
+            { message: error.message }
+          );
+          await new Promise((resolve) => setTimeout(resolve, delai));
+          continue;
+        }
+
+        // Erreur non temporaire et non liée au quota : inutile d'essayer une autre clé, on relance direct
+        throw error;
       }
-
-      if (isErreurTemporaire(error) && tentative < maxTentatives) {
-        const delai = extraireDelaiAttente(error, 5000 * tentative);
-        await log(
-          etapeNom,
-          `Erreur temporaire Gemini (tentative ${tentative}/${maxTentatives}), nouvelle tentative dans ${Math.round(delai / 1000)}s`,
-          'info',
-          { message: error.message }
-        );
-        await new Promise((resolve) => setTimeout(resolve, delai));
-        continue;
-      }
-
-      // Erreur non temporaire, ou dernière tentative épuisée : on relance telle quelle
-      throw error;
     }
   }
 
-  throw derniereErreur;
+  await log(etapeNom, `Quota journalier épuisé sur toutes les clés Gemini disponibles (${GEMINI_API_KEYS.length})`, 'error');
+  throw new Error(`Quota journalier Gemini épuisé sur toutes les clés (${etapeNom}), nouvelle tentative inutile aujourd'hui.`);
 }
