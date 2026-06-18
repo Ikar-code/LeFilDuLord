@@ -32,13 +32,21 @@ export async function filterNewTopics(topics) {
 // Vérifie s'il existe déjà un sujet en attente (statut 'nouveau') en base.
 // Si oui, le retourne (le plus ancien d'abord, pour ne pas laisser de sujet de côté indéfiniment).
 // Si non, retourne null.
-export async function getNextPendingTopic() {
-  const { data, error } = await supabase
+// `exclureTitres` (Set ou tableau de titres) permet d'ignorer des sujets déjà essayés
+// dans le run en cours (ex: un sujet qui vient d'être rejeté par le scoring).
+export async function getNextPendingTopic(exclureTitres = null) {
+  let query = supabase
     .from('sujets')
     .select('*')
     .eq('statut', 'nouveau')
-    .order('date_creation', { ascending: true })
-    .limit(1);
+    .order('date_creation', { ascending: true });
+
+  const exclusions = exclureTitres ? Array.from(exclureTitres) : [];
+  if (exclusions.length > 0) {
+    query = query.not('titre', 'in', `(${exclusions.map((t) => `"${t}"`).join(',')})`);
+  }
+
+  const { data, error } = await query.limit(1);
 
   if (error) {
     await log('checkDuplicates', 'Erreur récupération sujet en attente: ' + error.message, 'error');
