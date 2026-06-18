@@ -2,13 +2,13 @@ import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
 export async function findTopics() {
-  const annee = new Date().getFullYear();
+  const aujourdHui = new Date().toLocaleDateString('fr-FR');
 
   const prompt = `
 Tu es rédacteur en chef de "Le Fil du Lord", un média numérique francophone
 destiné principalement aux jeunes générations.
 
-Nous sommes en ${annee}.
+Nous sommes le ${aujourdHui}.
 
 Mission :
 Identifier 5 sujets d'actualité RÉELS, RÉCENTS, IMPORTANTS et VÉRIFIABLES
