@@ -72,6 +72,7 @@ export async function insertSujets(topics) {
     titre: topic.titre,
     description: topic.description,
     source: topic.source,
+    extrait_brut: topic.extrait_brut || null,
     categorie: topic.categorie,
     statut: 'nouveau'
   }));
