@@ -1,6 +1,5 @@
 import { GROQ_API_KEY } from './clients.js';
 import { log } from './logger.js';
-import { findTopics } from './step1_findTopics.js';
 
 async function callGroq(prompt) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -244,7 +243,13 @@ Réponds exactement dans ce format :
   return JSON.parse(cleaned);
 }
 
-export async function writeArticle(topic, scoreArticleFn) {
+// writeArticle reçoit :
+// - topic : le sujet de départ (déjà vérifié par verifyTopics, inséré en base par insertSujets)
+// - scoreArticleFn : fonction de scoring (Gemini)
+// - getNextPendingTopicFn : fonction optionnelle qui retourne le prochain sujet EN ATTENTE en base
+//   (déjà vérifié, pas un sujet brut), utilisée pour changer de sujet si le score est insuffisant.
+//   Si elle n'est pas fournie, ou si elle ne retourne rien, on retente simplement sur le même sujet.
+export async function writeArticle(topic, scoreArticleFn, getNextPendingTopicFn = null) {
   const MAX_TENTATIVES = 3;
   const SEUIL = 7;
 
@@ -252,6 +257,9 @@ export async function writeArticle(topic, scoreArticleFn) {
   let article = null;
   let evaluation = null;
   let currentTopic = topic;
+
+  // Sujets déjà essayés (par titre) pour ne jamais repiocher le même sujet rejeté.
+  const sujetsExclus = new Set([topic.titre]);
 
   while (tentative < MAX_TENTATIVES) {
     tentative++;
@@ -261,39 +269,20 @@ export async function writeArticle(topic, scoreArticleFn) {
 
       await log(
         'writeArticle',
-        `Tentative ${tentative} — Article rédigé: "${article.titre}"`,
+        `Tentative ${tentative} — Article rédigé sur "${currentTopic.titre}": "${article.titre}"`,
         'success'
       );
-
     } catch (e) {
-
-      await log(
-        'writeArticle',
-        `Tentative ${tentative} — Erreur génération: ${e.message}`,
-        'error'
-      );
-
+      await log('writeArticle', `Tentative ${tentative} — Erreur génération: ${e.message}`, 'error');
       continue;
     }
 
-
     evaluation = await scoreArticleFn(article);
 
-
     if (evaluation.score >= SEUIL) {
-
-      await log(
-        'writeArticle',
-        `Tentative ${tentative} — Score suffisant: ${evaluation.score}/10`,
-        'success'
-      );
-
-      return {
-        article,
-        evaluation
-      };
+      await log('writeArticle', `Tentative ${tentative} — Score suffisant: ${evaluation.score}/10`, 'success');
+      return { article, evaluation, sujetUtilise: currentTopic };
     }
-
 
     await log(
       'writeArticle',
@@ -301,50 +290,31 @@ export async function writeArticle(topic, scoreArticleFn) {
       'info'
     );
 
+    // CHANGER DE SUJET, uniquement parmi des sujets déjà vérifiés en base (statut 'nouveau').
+    // On ne rappelle JAMAIS findTopics() ici : ça contournerait verifyTopics et consommerait
+    // du quota Gemini supplémentaire pour rien.
+    if (getNextPendingTopicFn && tentative < MAX_TENTATIVES) {
+      try {
+        const nextTopic = await getNextPendingTopicFn(sujetsExclus);
 
-    // CHANGER DE SUJET
-    try {
-
-      const newTopics = await findTopics();
-
-
-      if (newTopics && newTopics.length > 0) {
-
-        currentTopic =
-          newTopics[Math.floor(Math.random() * newTopics.length)];
-
-
-        await log(
-          'writeArticle',
-          `Nouveau sujet sélectionné : "${currentTopic.titre}"`,
-          'info'
-        );
-
+        if (nextTopic) {
+          currentTopic = nextTopic;
+          sujetsExclus.add(nextTopic.titre);
+          await log('writeArticle', `Nouveau sujet (déjà vérifié) sélectionné : "${currentTopic.titre}"`, 'info');
+        } else {
+          await log(
+            'writeArticle',
+            'Aucun autre sujet en attente disponible en base, on retente sur le même sujet',
+            'info'
+          );
+        }
+      } catch (e) {
+        await log('writeArticle', `Impossible de récupérer un nouveau sujet : ${e.message}`, 'error');
       }
-
-    } catch (e) {
-
-      await log(
-        'writeArticle',
-        `Impossible de récupérer un nouveau sujet : ${e.message}`,
-        'error'
-      );
-
     }
-
   }
 
+  await log('writeArticle', `Échec après ${MAX_TENTATIVES} tentatives — meilleur score: ${evaluation?.score}/10`, 'error');
 
-  await log(
-    'writeArticle',
-    `Échec après ${MAX_TENTATIVES} tentatives — meilleur score: ${evaluation?.score}/10`,
-    'error'
-  );
-
-
-  return {
-    article,
-    evaluation,
-    rejeté: true
-  };
+  return { article, evaluation, sujetUtilise: currentTopic, rejeté: true };
 }
