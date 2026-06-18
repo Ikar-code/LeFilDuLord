@@ -131,7 +131,7 @@ Réponds UNIQUEMENT en JSON valide :
 
   const result = await callGeminiWithRetry(
     async (genAI) => {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
       const r = await model.generateContent(prompt);
       const t = r.response.text().trim();
       if (!t) {
