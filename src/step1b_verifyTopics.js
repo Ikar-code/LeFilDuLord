@@ -1,4 +1,3 @@
-import { genAI } from './clients.js';
 import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
@@ -8,11 +7,6 @@ export async function verifyTopics(topics) {
   if (!topics || topics.length === 0) {
     return [];
   }
-
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash-lite',
-    tools: [{ googleSearch: {} }]
-  });
 
   const prompt = `
 Tu es vérificateur de faits pour "Le Fil du Lord", un média numérique francophone.
@@ -52,9 +46,27 @@ Aucun texte avant ou après le JSON.
 `;
 
   const result = await callGeminiWithRetry(
-    () => model.generateContent(prompt),
+    async (genAI) => {
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash',
+        tools: [{ googleSearch: {} }]
+      });
+      const r = await model.generateContent(prompt);
+      const t = r.response.text().trim();
+      if (!t) {
+        const candidate = r.response.candidates?.[0];
+        await log('verifyTopics', 'Réponse Gemini vide (aucun texte généré), nouvelle tentative', 'info', {
+          finishReason: candidate?.finishReason,
+          safetyRatings: candidate?.safetyRatings,
+          promptFeedback: r.response.promptFeedback
+        });
+        throw new Error('REPONSE_VIDE: Gemini a renvoyé une réponse sans texte');
+      }
+      return r;
+    },
     'verifyTopics'
   );
+
   const text = result.response.text().trim();
   const cleaned = text.replace(/```json|```/g, '').trim();
 
@@ -64,7 +76,6 @@ Aucun texte avant ou après le JSON.
   } catch (e) {
     await log('verifyTopics', 'Erreur de parsing JSON: ' + e.message, 'error', { raw: text.substring(0, 3000) });
 
-    // Tentative de récupération si la réponse a été tronquée
     const start = cleaned.indexOf('[');
     const end = cleaned.lastIndexOf(']');
     if (start !== -1 && end !== -1) {
