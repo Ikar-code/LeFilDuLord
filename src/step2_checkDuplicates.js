@@ -2,7 +2,7 @@ import { supabase } from './clients.js';
 import { log } from './logger.js';
 
 // Filtre uniquement : retourne les sujets qui n'existent pas déjà dans 'sujets'.
-// Ne fait plus aucune insertion en base.
+// Ne fait aucune insertion en base.
 export async function filterNewTopics(topics) {
   const newTopics = [];
 
@@ -29,36 +29,55 @@ export async function filterNewTopics(topics) {
   return newTopics;
 }
 
-// Insère UN SEUL sujet (celui réellement choisi et traité) dans la table 'sujets'.
-// Retourne le sujet inséré (avec son id généré) pour pouvoir le lier à l'article ensuite.
-//
-// Exemple d'utilisation dans l'orchestrateur principal :
-//
-//   const topics = await findTopics();
-//   const newTopics = await filterNewTopics(topics);
-//   const sujetChoisi = newTopics[0]; // ou autre critère de choix
-//   const sujetInsere = await insertSujet(sujetChoisi);
-//   const { article, evaluation } = await writeArticle(sujetChoisi, scoreArticle);
-//   await publishArticle(article, evaluation, sujetInsere.titre, sujetInsere.categorie);
-//
-export async function insertSujet(topic) {
+// Vérifie s'il existe déjà un sujet en attente (statut 'nouveau') en base.
+// Si oui, le retourne (le plus ancien d'abord, pour ne pas laisser de sujet de côté indéfiniment).
+// Si non, retourne null.
+export async function getNextPendingTopic() {
   const { data, error } = await supabase
     .from('sujets')
-    .insert({
-      titre: topic.titre,
-      description: topic.description,
-      source: topic.source,
-      categorie: topic.categorie,
-      statut: 'nouveau'
-    })
-    .select()
-    .single();
+    .select('*')
+    .eq('statut', 'nouveau')
+    .order('date_creation', { ascending: true })
+    .limit(1);
 
   if (error) {
-    await log('checkDuplicates', 'Erreur insertion sujet: ' + error.message, 'error', topic);
+    await log('checkDuplicates', 'Erreur récupération sujet en attente: ' + error.message, 'error');
     throw error;
   }
 
-  await log('checkDuplicates', `Sujet choisi enregistré: ${topic.titre}`, 'success', data);
+  if (data && data.length > 0) {
+    await log('checkDuplicates', `Sujet en attente trouvé: ${data[0].titre}`, 'success', data[0]);
+    return data[0];
+  }
+
+  return null;
+}
+
+// Insère plusieurs sujets validés en une fois dans la table 'sujets' (statut 'nouveau').
+// Retourne les lignes insérées (avec leur id généré).
+export async function insertSujets(topics) {
+  if (!topics || topics.length === 0) {
+    return [];
+  }
+
+  const rows = topics.map((topic) => ({
+    titre: topic.titre,
+    description: topic.description,
+    source: topic.source,
+    categorie: topic.categorie,
+    statut: 'nouveau'
+  }));
+
+  const { data, error } = await supabase
+    .from('sujets')
+    .insert(rows)
+    .select();
+
+  if (error) {
+    await log('checkDuplicates', 'Erreur insertion sujets: ' + error.message, 'error', topics);
+    throw error;
+  }
+
+  await log('checkDuplicates', `${data.length} sujets validés enregistrés en base`, 'success', data);
   return data;
 }
