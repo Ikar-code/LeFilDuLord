@@ -1,5 +1,6 @@
 import { genAI } from './clients.js';
 import { log } from './logger.js';
+import { callGeminiWithRetry } from './geminiRetry.js';
 
 // Vérifie une liste de sujets en un seul appel Gemini (avec recherche web active)
 // et ne retourne que ceux jugés réellement confirmés par une source vérifiable.
@@ -50,7 +51,10 @@ Si aucun sujet n'est validé, réponds avec un tableau vide : []
 Aucun texte avant ou après le JSON.
 `;
 
-  const result = await model.generateContent(prompt);
+  const result = await callGeminiWithRetry(
+    () => model.generateContent(prompt),
+    'verifyTopics'
+  );
   const text = result.response.text().trim();
   const cleaned = text.replace(/```json|```/g, '').trim();
 
