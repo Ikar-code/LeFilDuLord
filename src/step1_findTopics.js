@@ -3,6 +3,7 @@ import { callGeminiWithRetry } from './geminiRetry.js';
 
 export async function findTopics() {
   const aujourdHui = new Date().toLocaleDateString('fr-FR');
+  const annee = new Date().getFullYear();
 
   const prompt = `
 Tu es rédacteur en chef de "Le Fil du Lord", un média numérique francophone
