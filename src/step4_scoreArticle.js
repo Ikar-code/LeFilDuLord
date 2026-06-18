@@ -1,8 +1,13 @@
 import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
+const aujourdHui = new Date().toLocaleDateString('fr-FR');
+
 export async function scoreArticle(article) {
+
   const prompt = `
+Nous sommes le ${aujourdHui}.
+
 Tu es rédacteur en chef et responsable qualité du média "Le Fil du Lord".
 Ta mission est d'évaluer la qualité journalistique de cet article avant publication.
 
