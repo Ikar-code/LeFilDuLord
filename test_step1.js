@@ -40,17 +40,26 @@ import { publishArticle } from './src/step5_publishArticle.js';
       sujet = sujetsInseres[0];
     }
 
-    // 2. Rédaction de l'article à partir du sujet choisi (en attente ou nouvellement validé).
-    const { article, evaluation, rejeté } = await writeArticle(sujet, scoreArticle);
+    // 2. Rédaction de l'article à partir du sujet choisi.
+    // getNextPendingTopic est passé en 3e argument : si le score est insuffisant,
+    // writeArticle pioche un AUTRE sujet déjà vérifié et en attente en base,
+    // plutôt que de rappeler findTopics (ce qui contournerait verifyTopics).
+    const { article, evaluation, sujetUtilise, rejeté } = await writeArticle(
+      sujet,
+      scoreArticle,
+      getNextPendingTopic
+    );
+
     console.log('--- ARTICLE GÉNÉRÉ ---');
     console.log('Titre:', article.titre);
+    console.log('Sujet réellement utilisé:', sujetUtilise.titre);
     console.log('--- ÉVALUATION ---');
     console.log(JSON.stringify(evaluation, null, 2));
 
     if (rejeté) {
-      console.log("--- ARTICLE REJETÉ après 3 tentatives, le sujet reste 'nouveau' pour être retenté plus tard ---");
+      console.log("--- ARTICLE REJETÉ après 3 tentatives, les sujets essayés restent 'nouveau' pour être retentés plus tard ---");
     } else {
-      const statut = await publishArticle(article, evaluation, sujet.titre, sujet.categorie);
+      const statut = await publishArticle(article, evaluation, sujetUtilise.titre, sujetUtilise.categorie);
       console.log(`--- RÉSULTAT FINAL: statut = ${statut} ---`);
     }
   } catch (e) {
