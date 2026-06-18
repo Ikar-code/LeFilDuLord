@@ -1,6 +1,11 @@
 import { findTopics } from './src/step1_findTopics.js';
 import { verifyTopics } from './src/step1b_verifyTopics.js';
-import { filterNewTopics, getNextPendingTopic, insertSujets } from './src/step2_checkDuplicates.js';
+import {
+  filterNewTopics,
+  getNextPendingTopic,
+  insertSujets,
+  enregistrerEchecSujet
+} from './src/step2_checkDuplicates.js';
 import { writeArticle } from './src/step3_writeArticle.js';
 import { scoreArticle } from './src/step4_scoreArticle.js';
 import { publishArticle } from './src/step5_publishArticle.js';
@@ -41,10 +46,7 @@ import { publishArticle } from './src/step5_publishArticle.js';
     }
 
     // 2. Rédaction de l'article à partir du sujet choisi.
-    // getNextPendingTopic est passé en 3e argument : si le score est insuffisant,
-    // writeArticle pioche un AUTRE sujet déjà vérifié et en attente en base,
-    // plutôt que de rappeler findTopics (ce qui contournerait verifyTopics).
-    const { article, evaluation, sujetUtilise, rejeté } = await writeArticle(
+    const { article, evaluation, sujetUtilise, sujetsEssayes, rejeté } = await writeArticle(
       sujet,
       scoreArticle,
       getNextPendingTopic
@@ -57,8 +59,22 @@ import { publishArticle } from './src/step5_publishArticle.js';
     console.log(JSON.stringify(evaluation, null, 2));
 
     if (rejeté) {
-      console.log("--- ARTICLE REJETÉ après 3 tentatives, les sujets essayés restent 'nouveau' pour être retentés plus tard ---");
+      console.log('--- ARTICLE REJETÉ après 3 tentatives ---');
+
+      // Tous les sujets essayés dans ce run ont échoué : on enregistre l'échec de chacun.
+      // Au 2e échec total, un sujet est automatiquement supprimé (voir enregistrerEchecSujet).
+      for (const s of sujetsEssayes) {
+        await enregistrerEchecSujet(s.id);
+      }
     } else {
+      // Le sujet utilisé a réussi : on enregistre l'échec uniquement des AUTRES sujets essayés
+      // avant de trouver le bon (s'il y en a eu).
+      for (const s of sujetsEssayes) {
+        if (s.id !== sujetUtilise.id) {
+          await enregistrerEchecSujet(s.id);
+        }
+      }
+
       const statut = await publishArticle(article, evaluation, sujetUtilise.titre, sujetUtilise.categorie);
       console.log(`--- RÉSULTAT FINAL: statut = ${statut} ---`);
     }
