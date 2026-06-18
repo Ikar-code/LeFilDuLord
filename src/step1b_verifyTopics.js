@@ -55,14 +55,15 @@ Avant de répondre, pour chaque sujet, pose-toi mentalement ces questions :
 Si la réponse à la dernière question est "oui" ou "peut-être" : EXCLUS LE SUJET.
 
 Réponds UNIQUEMENT en JSON valide, sous la forme d'un tableau contenant uniquement
-les sujets validés (reprends exactement les mêmes champs que ceux fournis en entrée,
-sans rien modifier ni ajouter) :
+les sujets validés (reprends EXACTEMENT et INTÉGRALEMENT les mêmes champs que ceux
+fournis en entrée, y compris extrait_brut sans le modifier, sans rien ajouter) :
 
 [
   {
     "titre": "",
     "description": "",
     "source": "",
+    "extrait_brut": "",
     "categorie": ""
   }
 ]
