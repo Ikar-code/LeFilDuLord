@@ -39,8 +39,11 @@ Toutes les informations nécessaires sont déjà présentes dans le sujet.
 Sujet :
 Titre proposé : ${topic.titre}
 
-Dossier journalistique :
+Dossier journalistique (résumé structuré) :
 ${topic.description}
+
+${topic.extrait_brut ? `Extrait brut original (source non résumée — utilise-le pour ne manquer aucun détail que le résumé ci-dessus aurait omis) :
+${topic.extrait_brut}` : ''}
 
 Source :
 ${topic.source}
@@ -48,7 +51,12 @@ ${topic.source}
 
 RÈGLE ABSOLUE :
 
-Tu dois utiliser uniquement les informations fournies.
+Tu dois utiliser uniquement les informations fournies (dossier journalistique
+ET extrait brut original si présent).
+
+Si l'extrait brut contient un détail (chiffre, date, nom, citation) absent du
+dossier journalistique, tu peux et dois l'utiliser — ces deux sources décrivent
+le même événement, l'extrait brut est simplement plus complet.
 
 Ne jamais inventer :
 - date
