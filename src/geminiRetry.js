@@ -7,15 +7,12 @@ import { log } from './logger.js';
 // mais une AUTRE clé peut encore avoir du quota disponible.
 function isQuotaJournalierEpuise(error) {
   const message = error?.message || '';
+
   return (
     message.includes('GenerateRequestsPerDayPerProjectPerModel') ||
     message.includes('GenerateRequestsPerDayPerModel') ||
-    message.includes('quota') ||
-    message.includes('Quota') ||
-    message.includes('You exceeded your current quota') ||
-    message.includes('current quota') ||
-    message.includes('billing details') ||
-    message.includes('limit:')
+    message.includes('FreeTier') ||
+    message.includes('GenerateRequestsPerDay')
   );
 }
 
