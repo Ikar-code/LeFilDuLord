@@ -114,11 +114,8 @@ Aucun texte avant ou après.
 `;
 
   const result = await callGeminiWithRetry(
-    async (genAI) => {
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-3.1-flash-lite'
-        // Pas de googleSearch ici : la recherche a déjà été faite par le scraping.
-      });
+    async (genAI, modelName) => {
+      const model = genAI.getGenerativeModel({ model: modelName });
       const r = await model.generateContent(prompt);
       const t = r.response.text().trim();
       if (!t) {
