@@ -69,8 +69,19 @@ TITRE :
 - doit éviter les titres vagues
 
 DESCRIPTION :
-Entre 80 et 120 mots, basée sur l'extrait scrapé. La première phrase doit annoncer
-l'événement principal et citer l'acteur concerné.
+Entre 300 et 500 mots maximum. Ce résumé doit contenir TOUTES les informations
+importantes présentes dans l'extrait scrapé, afin qu'un journaliste puisse rédiger
+un article complet sans avoir besoin d'aller chercher d'autres sources.
+
+Il doit inclure :
+- l'événement principal et son contexte
+- les acteurs concernés (noms précis, entreprises, studios, plateformes)
+- les dates et chiffres mentionnés
+- les conséquences ou implications importantes
+- tout détail factuel présent dans l'extrait, même secondaire
+
+Ne pas résumer de manière vague. Chaque information concrète de l'extrait
+doit apparaître dans la description.
 
 SOURCE :
 Reprends l'url du résultat scrapé correspondant.
