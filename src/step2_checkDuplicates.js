@@ -1,8 +1,8 @@
 import { supabase } from './clients.js';
 import { log } from './logger.js';
-import { callGeminiWithRetry } from './geminiRetry.js';
+import { GROQ_API_KEY } from './clients.js';
 
-// Demande à Gemini si le nouveau sujet est un doublon sémantique
+// Demande à Groq si le nouveau sujet est un doublon sémantique
 // (même événement reformulé) d'un des titres déjà en base.
 // Retourne le titre existant correspondant si doublon, sinon null.
 async function trouverDoublonSemantique(topic, titresExistants) {
@@ -42,20 +42,32 @@ Réponds UNIQUEMENT en JSON valide :
 Aucun texte avant ou après.
 `;
 
-  const result = await callGeminiWithRetry(
-    async (genAI, modelName) => {
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const r = await model.generateContent(prompt);
-      const t = r.response.text().trim();
-      if (!t) {
-        throw new Error('REPONSE_VIDE: Gemini a renvoyé une réponse sans texte');
-      }
-      return r;
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GROQ_API_KEY}`
     },
-    'checkDuplicates'
-  );
+    body: JSON.stringify({
+      model: 'qwen/qwen3-32b',
+      reasoning_effort: 'none',
+      response_format: { type: 'json_object' },
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    })
+  });
 
-  const text = result.response.text().trim();
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Groq: statut HTTP ${response.status} — ${errorText}`);
+  }
+
+  const data = await response.json();
+  const text = data.choices[0].message.content.trim();
   const cleaned = text.replace(/```json|```/g, '').trim();
 
   let verdict;
@@ -63,8 +75,7 @@ Aucun texte avant ou après.
     verdict = JSON.parse(cleaned);
   } catch (e) {
     await log('checkDuplicates', 'Erreur parsing JSON doublon sémantique: ' + e.message, 'error', { raw: text.substring(0, 1000) });
-    // En cas d'erreur de parsing, on ne bloque pas le sujet (sécurité : pas de faux positif)
-    return null;
+    throw e;
   }
 
   if (verdict.doublon) {
@@ -76,7 +87,7 @@ Aucun texte avant ou après.
 
 // Filtre uniquement : retourne les sujets qui n'existent pas déjà dans 'sujets'.
 // Vérifie d'abord les doublons exacts (rapide, gratuit), puis les doublons
-// reformulés via Gemini (même événement, formulation différente).
+// reformulés via Groq (même événement, formulation différente).
 // Ne fait aucune insertion en base.
 export async function filterNewTopics(topics) {
   const newTopics = [];
@@ -113,7 +124,7 @@ export async function filterNewTopics(topics) {
       continue;
     }
 
-    // 2. Vérification sémantique via Gemini (même événement, formulation différente)
+    // 2. Vérification sémantique via Groq (même événement, formulation différente)
     try {
       const titreDoublon = await trouverDoublonSemantique(topic, titresExistants);
 
