@@ -162,7 +162,22 @@ Streaming / cinéma :
 
 LONGUEUR :
 
-1000 à 1200 mots environ.
+L'article doit faire entre 1000 et 1200 mots. C'est une exigence stricte, pas une suggestion.
+
+Répartition indicative :
+- Introduction : 150 à 200 mots
+- Développement : 650 à 800 mots (plusieurs paragraphes développés, pas un seul bloc)
+- Conclusion : 150 à 200 mots
+
+IMPORTANT : "ne jamais inventer" ne veut pas dire "rester minimaliste". Tu dois développer
+en profondeur CHAQUE information déjà présente dans le dossier journalistique, la
+vérification factuelle et les faits vérifiés : explique le contexte, détaille les
+acteurs, développe les implications et les conséquences déjà mentionnées. Toute
+information du dossier mérite d'être expliquée et mise en contexte, pas seulement
+listée en une phrase.
+
+Un article de moins de 800 mots n'est pas acceptable, même si toutes les informations
+qu'il contient sont exactes.
 
 
 
