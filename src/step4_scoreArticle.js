@@ -19,6 +19,20 @@ ${article.titre}
 Contenu :
 ${article.contenu}
 
+Sujet vérifié utilisé pour écrire l'article :
+
+Titre original :
+${topic.titre}
+
+Description vérifiée :
+${topic.description}
+
+Faits validés par le vérificateur :
+${topic.faitsVerifies?.join("\n") || "Aucun"}
+
+Résumé de vérification :
+${topic.verification || "Aucune"}
+
 
 Évalue l'article selon les critères suivants :
 
@@ -32,13 +46,22 @@ ${article.contenu}
 
 2. Fiabilité journalistique (CRITÈRE PRIORITAIRE)
 
-Avant de noter l'article, vérifie que l'événement décrit semble réellement exister.
+Le sujet a déjà été vérifié en amont par un système de fact-checking.
+
+Tu ne dois PAS refaire une recherche ou rejeter l'article uniquement parce que
+tu ne connais pas l'information.
+
+Tu dois vérifier uniquement :
+
+- Est-ce que l'article respecte les faits validés ?
+- Est-ce qu'il ajoute des informations absentes ?
+- Est-ce qu'il déforme l'événement ?
+- Est-ce qu'il présente une hypothèse comme un fait ?
+
+Un événement présent dans les informations validées doit être considéré comme réel.
 
 L'article doit être fortement pénalisé si :
 
-- l'annonce n'est pas confirmée officiellement
-- le projet, produit, événement ou acteur semble inventé
-- la source fournie ne permet pas de vérifier l'information
 - l'article présente une rumeur comme une annonce officielle
 - une date précise existe mais aucun élément ne prouve que l'événement a réellement eu lieu
 - les chiffres, citations ou détails semblent ajoutés sans preuve
@@ -90,9 +113,9 @@ L'article doit :
 Pénalités importantes :
 
 - Sujet vague ou simple tendance sans événement précis : -3 points
-- Informations non vérifiables ou inventées : -5 points
-- Annonce non confirmée ou probablement inventée : -6 points
-- Projet, produit ou événement inexistant : score maximum 3/10
+- Informations inventées par rapport au dossier vérifié : -5 points
+- Contradiction avec les faits validés : -6 points
+- Ajout d'informations non présentes dans le dossier :-3 points
 - Source absente ou non crédible : score maximum 4/10
 - Absence totale de date ou contexte temporel : -2 points
 - Absence d'acteurs ou éléments concrets : -2 points
