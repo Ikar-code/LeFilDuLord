@@ -110,7 +110,14 @@ export async function verifyTopics(topics) {
 
   const validatedTopics = [];
 
-  for (const topic of topics) {
+  for (let i = 0; i < topics.length; i++) {
+    const topic = topics[i];
+
+    // Pause entre chaque appel pour rester sous le RPM (15/min pour gemini-3.1-flash-lite)
+    if (i > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+
     try {
       const resultat = await verifierUnSujet(topic);
       if (resultat) {
