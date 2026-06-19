@@ -184,7 +184,7 @@ def scraper_rss(url, categorie):
             # On ne scrape que les articles récents (éviter l'archive)
             resultat = {
                 "titre": entry.get("title", ""),
-                "extrait": entry.get("summary", "")[:500],
+                "extrait": entry.get("summary", "")[:1000],
                 "url": entry.get("link", ""),
                 "categorie": categorie,
                 "source_type": "rss",
@@ -206,7 +206,7 @@ def scraper_ddg_fallback(requete, categorie, num_resultats=5):
             for r in (ddgs.text(requete, max_results=num_resultats) or []):
                 resultat = {
                     "titre": r.get("title", ""),
-                    "extrait": (r.get("body", "") or "")[:500],
+                    "extrait": (r.get("body", "") or "")[:1000],
                     "url": r.get("href", ""),
                     "categorie": categorie,
                     "source_type": "ddg_fallback",
