@@ -2,44 +2,69 @@ import { GROQ_API_KEY } from './clients.js';
 import { log } from './logger.js';
 
 
-async function callGroq(prompt, maxTentatives = 3) {
-  for (let tentative = 1; tentative <= maxTentatives; tentative++) {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3-32b',
-        reasoning_effort: 'none',
-        response_format: { type: 'json_object' },
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      })
-    });
+const MODELES_GROQ_FALLBACK = ['qwen/qwen3-32b', 'llama-3.3-70b-versatile'];
 
-    if (response.ok) {
-      const data = await response.json();
-      return data.choices[0].message.content.trim();
+async function callGroq(prompt, maxTentativesParModele = 3) {
+  let derniereErreur;
+
+  for (const modele of MODELES_GROQ_FALLBACK) {
+    for (let tentative = 1; tentative <= maxTentativesParModele; tentative++) {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: modele,
+          reasoning_effort: 'none',
+          response_format: { type: 'json_object' },
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ]
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.choices[0].message.content.trim();
+      }
+
+      const errorText = await response.text();
+      derniereErreur = new Error(`Groq (${modele}): statut HTTP ${response.status} — ${errorText}`);
+
+      if (response.status === 429) {
+        const estLimiteJournaliere = /requests per day|RPD|daily/i.test(errorText);
+
+        // Limite journalière (RPD) : ce modèle est mort pour aujourd'hui, on passe direct au suivant
+        if (estLimiteJournaliere) {
+          await log('writeArticle', `Limite journalière atteinte sur ${modele}, passage au modèle de secours`, 'warning');
+          break;
+        }
+
+        // Limite par minute (TPM) : on retente après le délai suggéré, sur le même modèle
+        if (tentative < maxTentativesParModele) {
+          const match = errorText.match(/try again in ([\d.]+)s/);
+          const delaiMs = match ? Math.ceil(parseFloat(match[1]) * 1000) + 500 : 3000;
+          await log('writeArticle', `Rate limit TPM sur ${modele}, retry dans ${Math.round(delaiMs / 1000)}s`, 'info');
+          await new Promise((resolve) => setTimeout(resolve, delaiMs));
+          continue;
+        }
+
+        // Plus de tentatives sur ce modèle pour du TPM répété : on passe au modèle de secours
+        await log('writeArticle', `${modele} abandonné après ${maxTentativesParModele} essais (TPM), passage au modèle de secours`, 'warning');
+        break;
+      }
+
+      // Erreur non-429 : pas la peine de retenter sur ce modèle, on passe au suivant
+      break;
     }
-
-    const errorText = await response.text();
-
-    // Rate limit (429) : on attend le délai indiqué par Groq (ou 3s par défaut) et on réessaie
-    if (response.status === 429 && tentative < maxTentatives) {
-      const match = errorText.match(/try again in ([\d.]+)s/);
-      const delaiMs = match ? Math.ceil(parseFloat(match[1]) * 1000) + 500 : 3000;
-      await new Promise((resolve) => setTimeout(resolve, delaiMs));
-      continue;
-    }
-
-    throw new Error(`Groq: statut HTTP ${response.status} — ${errorText}`);
   }
+
+  throw derniereErreur || new Error('Groq: tous les modèles de secours ont échoué');
 }
 
 
