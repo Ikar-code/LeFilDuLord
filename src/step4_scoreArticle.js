@@ -29,6 +29,20 @@ Ton rôle est uniquement de vérifier :
 - si l'article déforme l'événement
 - si l'article est bien écrit et publiable
 
+NUANCE IMPORTANTE SUR LE CONTEXTE GÉNÉRAL :
+
+L'article peut légitimement contenir du contexte général de connaissance publique
+largement établie (ex: présenter brièvement ce qu'est un studio, une plateforme, un genre
+de jeu, le rôle d'une institution) pour aider le lecteur à comprendre. Ce n'est PAS une
+invention à pénaliser, tant que :
+- ce contexte reste général et non spécifique à l'événement traité
+- aucun chiffre, date, citation ou conséquence précise n'est attribué à l'événement
+  lui-même sans venir du dossier
+
+Ce qui doit être pénalisé, c'est uniquement le contexte qui invente ou suppose des
+détails SPÉCIFIQUES à l'événement traité (ex: prêter une motivation précise à un studio,
+inventer une réaction de communauté, supposer un impact chiffré, attribuer une citation).
+
 
 Article :
 
@@ -74,16 +88,23 @@ L'article doit :
 - utiliser les bonnes dates
 - utiliser les bons acteurs
 - utiliser les bons projets, œuvres ou entreprises
-- ne pas inventer de détails absents du dossier
+- ne pas inventer de détails spécifiques à l'événement absents du dossier
 
 
 Pénalise fortement :
 
 - contradiction avec les faits validés
-- invention de chiffres
+- invention de chiffres spécifiques à l'événement
 - invention de citations
 - ajout d'événements inexistants
 - modification importante de l'information vérifiée
+- contexte général présenté comme s'il était spécifique à l'événement
+
+
+Ne pénalise PAS :
+
+- du contexte général de connaissance publique clairement présenté comme tel
+  (ex: expliquer ce qu'est un genre, une plateforme, une institution)
 
 
 2. Qualité journalistique
@@ -124,8 +145,8 @@ L'article doit :
 Pénalités :
 
 - Contradiction avec les faits validés : -6 points
-- Informations inventées absentes du dossier : -5 points
-- Ajout de détails non vérifiés : -3 points
+- Informations spécifiques inventées absentes du dossier : -5 points
+- Ajout de détails spécifiques non vérifiés (présentés comme des faits) : -3 points
 - Article trop vague : -3 points
 - Article trop court ou résumé simple : -2 points
 - Ton promotionnel ou subjectif : -2 points
@@ -150,7 +171,8 @@ Article non publiable.
 Avant de noter, vérifie uniquement :
 
 - L'article correspond-il au dossier vérifié ?
-- Des informations ont-elles été inventées ?
+- Des informations SPÉCIFIQUES à l'événement ont-elles été inventées (à distinguer
+  du contexte général légitime) ?
 - L'écriture ressemble-t-elle à un vrai article ?
 
 
