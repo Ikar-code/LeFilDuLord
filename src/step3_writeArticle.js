@@ -34,7 +34,10 @@ Ta mission est de rédiger un véritable article journalistique complet
 uniquement à partir du dossier fourni.
 
 Tu n'effectues aucune recherche.
-Toutes les informations nécessaires sont déjà présentes dans le sujet.
+Toutes les informations nécessaires sont présentes dans le sujet
+et dans le dossier de faits vérifiés.
+
+Le dossier de faits vérifiés est prioritaire en cas de contradiction.
 
 Sujet :
 Titre proposé : ${topic.titre}
@@ -48,15 +51,26 @@ ${topic.extrait_brut}` : ''}
 Source :
 ${topic.source}
 
+Dossier de faits vérifiés par le vérificateur :
+
+${topic.faitsVerifies && topic.faitsVerifies.length > 0
+  ? topic.faitsVerifies.map(f => "- " + f).join("\n")
+  : "Aucun fait supplémentaire vérifié."}
+
 
 RÈGLE ABSOLUE :
 
-Tu dois utiliser uniquement les informations fournies (dossier journalistique
-ET extrait brut original si présent).
+Tu dois utiliser uniquement les informations fournies :
 
-Si l'extrait brut contient un détail (chiffre, date, nom, citation) absent du
-dossier journalistique, tu peux et dois l'utiliser — ces deux sources décrivent
-le même événement, l'extrait brut est simplement plus complet.
+1. Dossier de faits vérifiés (prioritaire)
+2. Dossier journalistique
+3. Extrait brut original
+
+Si l'extrait brut contient un détail absent du dossier journalistique,
+tu peux l'utiliser uniquement s'il ne contredit pas les faits vérifiés.
+
+Si une information du dossier journalistique contredit le dossier de faits vérifiés,
+utilise uniquement la version vérifiée.
 
 Ne jamais inventer :
 - date
