@@ -434,7 +434,7 @@ export async function writeArticle(
 
   await log(
     'writeArticle',
-    `Échec après ${MAX_Tentatives} tentatives — meilleur score: ${evaluation?.score}/10`,
+    `Échec après ${MAX_TENTATIVES} tentatives — meilleur score: ${evaluation?.score}/10`,
     'error'
   );
 
