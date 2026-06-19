@@ -44,6 +44,12 @@ SOURCES_OFFICIELLES = {
             "https://feeds.arstechnica.com/arstechnica/gaming",  # Ars Technica Gaming
             "https://www.gamespot.com/feeds/mashup/",  # GameSpot
             "https://www.pcgamer.com/feeds/all.xml",  # PC Gamer
+            "https://www.eurogamer.net/feed",  # Eurogamer
+            "https://www.ign.com/rss/articles/feed?tags=games",  # IGN Games
+            "https://kotaku.com/rss",  # Kotaku
+            "https://www.rockpapershotgun.com/feed",  # Rock Paper Shotgun
+            "https://www.nintendolife.com/feeds/news",  # Nintendo Life
+            "https://www.pushsquare.com/feeds/news",  # Push Square (PlayStation)
         ],
         "ddg_fallback": [
             "gaming news 2026 site:gamespot.com OR site:polygon.com OR site:pcgamer.com",
@@ -53,6 +59,9 @@ SOURCES_OFFICIELLES = {
         "rss": [
             "https://www.crunchyroll.com/feed/news",  # Crunchyroll (si disponible)
             "https://www.animenewsnetwork.com/rss.xml?ann-edition=us",  # Anime News Network (source officielle)
+            "https://www.crunchyroll.com/newsrss",  # Crunchyroll News (alternatif)
+            "https://otakuusamagazine.com/feed/",  # Otaku USA Magazine
+            "https://www.animenewsnetwork.com/all/rss.xml",  # ANN flux complet
         ],
         "ddg_fallback": [
             f"anime news {ANNEE} site:animenewsnetwork.com OR site:crunchyroll.com",
@@ -61,6 +70,8 @@ SOURCES_OFFICIELLES = {
     "manga": {
         "rss": [
             "https://www.animenewsnetwork.com/rss.xml?ann-edition=us",  # ANN couvre manga aussi
+            "https://www.shonenjump.com/rss",  # Shonen Jump officiel
+            "https://www.viz.com/rss/news",  # Viz Media (éditeur officiel manga)
         ],
         "ddg_fallback": [
             f"manga news {ANNEE} site:animenewsnetwork.com OR site:mangadex.cc",
@@ -73,11 +84,15 @@ SOURCES_OFFICIELLES = {
         ],
         "ddg_fallback": [
             f"webtoon news announcement {ANNEE} site:webtoons.com OR site:tapas.io OR site:naver.com",
+            f"webtoon news {ANNEE} site:animenewsnetwork.com OR site:bookriot.com",
         ]
     },
     "streaming": {
         "rss": [
             "https://www.theverge.com/rss/index.xml",  # The Verge (tech/streaming)
+            "https://variety.com/v/digital/feed/",  # Variety Digital/Streaming
+            "https://deadline.com/feed/",  # Deadline
+            "https://www.whats-on-netflix.com/feed/",  # What's on Netflix (spécialisé)
         ],
         "ddg_fallback": [
             f"netflix announcement {ANNEE} site:netflix.com",
@@ -88,6 +103,10 @@ SOURCES_OFFICIELLES = {
         "rss": [
             "https://www.variety.com/feed/rss/film.xml",  # Variety Film
             "https://www.hollywoodreporter.com/c/movies/feed/",  # Hollywood Reporter
+            "https://deadline.com/v/film/feed/",  # Deadline Film
+            "https://www.hollywoodreporter.com/c/tv/feed/",  # Hollywood Reporter TV
+            "https://www.indiewire.com/feed/",  # IndieWire
+            "https://collider.com/feed/",  # Collider
         ],
         "ddg_fallback": [
             f"film serie {ANNEE} site:variety.com OR site:hollywoodreporter.com",
@@ -97,6 +116,8 @@ SOURCES_OFFICIELLES = {
         "rss": [
             "https://feeds.theverge.com/theverse",  # The Verge
             "https://www.reddit.com/r/technology/new.rss",  # Reddit Tech (pour tendances)
+            "https://knowyourmeme.com/newsfeed.rss",  # Know Your Meme (tendances/mèmes)
+            "https://www.dexerto.com/feed/",  # Dexerto (culture internet/streamers)
         ],
         "ddg_fallback": [
             f"internet trend viral {ANNEE}",
@@ -106,6 +127,10 @@ SOURCES_OFFICIELLES = {
         "rss": [
             "https://feeds.arstechnica.com/arstechnica/index",  # Ars Technica
             "https://www.theverge.com/rss/index.xml",  # The Verge
+            "https://techcrunch.com/feed/",  # TechCrunch
+            "https://www.technologyreview.com/feed/",  # MIT Technology Review
+            "https://venturebeat.com/category/ai/feed/",  # VentureBeat AI
+            "https://www.wired.com/feed/category/business/latest/rss",  # Wired
         ],
         "ddg_fallback": [
             f"AI intelligence artificielle {ANNEE} site:openai.com OR site:google.com/ai OR site:anthropic.com",
@@ -114,6 +139,8 @@ SOURCES_OFFICIELLES = {
     "reseaux sociaux": {
         "rss": [
             "https://www.theverge.com/rss/index.xml",  # The Verge (couvre les nouvelles des réseaux sociaux)
+            "https://techcrunch.com/tag/social/feed/",  # TechCrunch Social
+            "https://www.socialmediatoday.com/feeds/news/",  # Social Media Today
         ],
         "ddg_fallback": [
             f"social media news {ANNEE} site:theverge.com OR site:techcrunch.com",
@@ -121,7 +148,9 @@ SOURCES_OFFICIELLES = {
     },
     "esport": {
         "rss": [
-            # Peu de flux RSS officiels, on compte sur DuckDuckGo
+            "https://www.dexerto.com/feed/",  # Dexerto (esport + culture internet)
+            "https://dotesports.com/feed",  # Dot Esports
+            "https://esportsinsider.com/feed",  # Esports Insider
         ],
         "ddg_fallback": [
             f"esport tournament 2026 site:liquipedia.net OR site:esportsinsider.com",
@@ -135,8 +164,8 @@ DOMAINES_FAIBLE_QUALITE = [
     "ebay", "alibaba", "wix", "squarespace", "canva",
 ]
 
-MAX_RESULTATS_PAR_CATEGORIE = 5
-MAX_RESULTATS_TOTAL = 40
+MAX_RESULTATS_PAR_CATEGORIE = 10
+MAX_RESULTATS_TOTAL = 100
 SCORE_MINIMUM = 5  # Moins strict puisqu'on vient de sources fiables
 
 # ============================================================
