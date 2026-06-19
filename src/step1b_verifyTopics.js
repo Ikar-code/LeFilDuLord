@@ -53,10 +53,26 @@ Réponds UNIQUEMENT en JSON valide :
 
 {
   "valide": true ou false,
-  "raison": "explication courte de ta décision"
+  "raison": "explication courte de ta décision",
+
+  "titreCorrige": "titre corrigé si nécessaire",
+
+  "descriptionCorrigee": "description corrigée si nécessaire",
+
+  "faitsVerifies": [
+    "fait vérifié 1",
+    "fait vérifié 2",
+    "fait vérifié 3"
+  ]
 }
 
-Aucun texte avant ou après le JSON.
+RÈGLES :
+
+- Si le sujet est valide mais contient une erreur mineure, corrige-la.
+- Si le titre est déjà correct, recopier le titre original.
+- Si la description est déjà correcte, recopier la description originale.
+- faitsVerifies doit contenir uniquement des informations confirmées par des sources fiables.
+- Aucun texte avant ou après le JSON.
 `;
 
   const result = await callGeminiWithRetry(
@@ -93,9 +109,26 @@ Aucun texte avant ou après le JSON.
   }
 
   if (verdict.valide) {
-    await log('verifyTopics', `Sujet validé: "${topic.titre}" — ${verdict.raison}`, 'success');
-    return topic;
-  }
+  const correctedTopic = {
+    ...topic,
+    titre:
+      verdict.titreCorrige ||
+      topic.titre,
+    description:
+      verdict.descriptionCorrigee ||
+      topic.description,
+    faitsVerifies:
+      verdict.faitsVerifies || []
+  };
+
+  await log(
+    'verifyTopics',
+    `Sujet validé: "${correctedTopic.titre}" — ${verdict.raison}`,
+    'success'
+  );
+
+  return correctedTopic;
+}
 
   await log('verifyTopics', `Sujet rejeté: "${topic.titre}" — ${verdict.raison}`, 'info');
   return null;
