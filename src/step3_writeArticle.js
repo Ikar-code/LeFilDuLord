@@ -45,6 +45,10 @@ Titre proposé : ${topic.titre}
 Dossier journalistique (résumé structuré) :
 ${topic.description}
 
+
+Vérification factuelle Gemini :
+${topic.verification || "Aucune vérification supplémentaire"}
+
 ${topic.extrait_brut ? `Extrait brut original (source non résumée — utilise-le pour ne manquer aucun détail que le résumé ci-dessus aurait omis) :
 ${topic.extrait_brut}` : ''}
 
@@ -81,6 +85,15 @@ Ne jamais inventer :
 - événement
 - conséquence
 - information technique
+
+La vérification factuelle Gemini est prioritaire.
+
+Si une information présente dans la vérification corrige
+ou remplace une information du dossier initial,
+utilise la version vérifiée.
+
+Ne jamais ajouter de détail absent du dossier
+ou de la vérification Gemini.
 
 Si une information n'est pas présente dans le dossier,
 ne pas la compléter avec tes connaissances.
