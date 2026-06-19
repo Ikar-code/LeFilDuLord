@@ -1,7 +1,7 @@
 import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
-export async function scoreArticle(article) {
+export async function scoreArticle(article, topic) {
   const aujourdHui = new Date().toLocaleDateString('fr-FR');
   
   const prompt = `
