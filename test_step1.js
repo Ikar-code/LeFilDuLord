@@ -33,6 +33,9 @@ import { publishArticle } from './src/step5_publishArticle.js';
         return;
       }
 
+      // Pause pour éviter de dépasser le RPM entre findTopics et les appels verifyTopics
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       const verifiedTopics = await verifyTopics(newTopics);
       console.log(`--- ${verifiedTopics.length} sujets confirmés réels sur ${newTopics.length} ---`);
 
