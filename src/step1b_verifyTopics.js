@@ -1,8 +1,6 @@
 import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
-// Vérifie un seul sujet via un appel Gemini dédié (avec recherche web active).
-// Retourne le sujet (inchangé) s'il est validé, ou null s'il est rejeté.
 async function verifierUnSujet(topic) {
   const prompt = `
 Tu es vérificateur de faits pour "Le Fil du Lord", un média numérique francophone.
@@ -54,11 +52,8 @@ Réponds UNIQUEMENT en JSON valide :
 {
   "valide": true ou false,
   "raison": "explication courte de ta décision",
-
   "titreCorrige": "titre corrigé si nécessaire",
-
   "descriptionCorrigee": "description corrigée si nécessaire",
-
   "faitsVerifies": [
     "fait vérifié 1",
     "fait vérifié 2",
@@ -76,9 +71,9 @@ RÈGLES :
 `;
 
   const result = await callGeminiWithRetry(
-    async (genAI) => {
+    async (genAI, modelName) => {
       const model = genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
+        model: modelName,
         tools: [{ googleSearch: {} }]
       });
       const r = await model.generateContent(prompt);
@@ -105,37 +100,25 @@ RÈGLES :
     verdict = JSON.parse(cleaned);
   } catch (e) {
     await log('verifyTopics', `Erreur de parsing JSON pour "${topic.titre}": ` + e.message, 'error', { raw: text.substring(0, 2000) });
-    return null; // en cas de doute sur le parsing, on rejette par sécurité
+    return null;
   }
 
   if (verdict.valide) {
-  const correctedTopic = {
-    ...topic,
-    titre:
-      verdict.titreCorrige ||
-      topic.titre,
-    description:
-      verdict.descriptionCorrigee ||
-      topic.description,
-    faitsVerifies:
-      verdict.faitsVerifies || []
-  };
+    const correctedTopic = {
+      ...topic,
+      titre: verdict.titreCorrige || topic.titre,
+      description: verdict.descriptionCorrigee || topic.description,
+      faitsVerifies: verdict.faitsVerifies || []
+    };
 
-  await log(
-    'verifyTopics',
-    `Sujet validé: "${correctedTopic.titre}" — ${verdict.raison}`,
-    'success'
-  );
-
-  return correctedTopic;
-}
+    await log('verifyTopics', `Sujet validé: "${correctedTopic.titre}" — ${verdict.raison}`, 'success');
+    return correctedTopic;
+  }
 
   await log('verifyTopics', `Sujet rejeté: "${topic.titre}" — ${verdict.raison}`, 'info');
   return null;
 }
 
-// Vérifie une liste de sujets, un appel Gemini dédié par sujet (avec recherche web active),
-// et ne retourne que ceux jugés réellement confirmés par une source vérifiable.
 export async function verifyTopics(topics) {
   if (!topics || topics.length === 0) {
     return [];
@@ -146,7 +129,6 @@ export async function verifyTopics(topics) {
   for (let i = 0; i < topics.length; i++) {
     const topic = topics[i];
 
-    // Pause entre chaque appel pour rester sous le RPM (15/min pour gemini-3.1-flash-lite)
     if (i > 0) {
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
@@ -158,8 +140,6 @@ export async function verifyTopics(topics) {
       }
     } catch (e) {
       await log('verifyTopics', `Échec de vérification pour "${topic.titre}": ${e.message}`, 'error');
-      // En cas d'échec technique (quota épuisé sur toutes les clés, etc.), on arrête
-      // la boucle plutôt que de continuer à essayer les sujets restants en vain.
       if (e.message.includes('Quota journalier')) {
         throw e;
       }
