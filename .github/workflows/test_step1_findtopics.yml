@@ -2,7 +2,7 @@ name: Test Step 1 - Find Topics
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 15,18 */2 * *'
+    - cron: '0 * * * *'
 jobs:
   test:
     runs-on: ubuntu-latest
