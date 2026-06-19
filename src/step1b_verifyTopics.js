@@ -78,7 +78,7 @@ RÈGLES :
   const result = await callGeminiWithRetry(
     async (genAI) => {
       const model = genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash-lite',
+        model: 'gemini-2.5',
         tools: [{ googleSearch: {} }]
       });
       const r = await model.generateContent(prompt);
