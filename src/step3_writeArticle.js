@@ -2,36 +2,44 @@ import { GROQ_API_KEY } from './clients.js';
 import { log } from './logger.js';
 
 
-async function callGroq(prompt) {
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${GROQ_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: 'qwen/qwen3-32b',
-      reasoning_effort: 'none',
-      response_format: { type: 'json_object' },
-      messages: [
-        {
-          role: 'user',
-          content: prompt
-        }
-      ]
-    })
-  });
+async function callGroq(prompt, maxTentatives = 3) {
+  for (let tentative = 1; tentative <= maxTentatives; tentative++) {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'qwen/qwen3-32b',
+        reasoning_effort: 'none',
+        response_format: { type: 'json_object' },
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ]
+      })
+    });
 
+    if (response.ok) {
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+    }
 
-  if (!response.ok) {
     const errorText = await response.text();
+
+    // Rate limit (429) : on attend le délai indiqué par Groq (ou 3s par défaut) et on réessaie
+    if (response.status === 429 && tentative < maxTentatives) {
+      const match = errorText.match(/try again in ([\d.]+)s/);
+      const delaiMs = match ? Math.ceil(parseFloat(match[1]) * 1000) + 500 : 3000;
+      await new Promise((resolve) => setTimeout(resolve, delaiMs));
+      continue;
+    }
+
     throw new Error(`Groq: statut HTTP ${response.status} — ${errorText}`);
   }
-
-
-  const data = await response.json();
-
-  return data.choices[0].message.content.trim();
 }
 
 
@@ -175,6 +183,15 @@ vérification factuelle et les faits vérifiés : explique le contexte, détaill
 acteurs, développe les implications et les conséquences déjà mentionnées. Toute
 information du dossier mérite d'être expliquée et mise en contexte, pas seulement
 listée en une phrase.
+
+Tu peux aussi ajouter du contexte général de connaissance publique largement établie
+(ex: présenter brièvement ce qu'est un studio, une plateforme, un genre de jeu, le rôle
+d'une institution) pour aider le lecteur à comprendre — à condition que ce contexte soit
+clairement général et non spécifique à l'événement. Ne présente JAMAIS ce contexte général
+comme un fait propre à l'événement traité, et ne lui attribue jamais de chiffres, dates,
+citations ou conséquences précises qui ne viennent pas du dossier. En cas de doute sur si
+une information est un fait spécifique ou une connaissance générale, traite-la comme un
+fait spécifique et ne l'inclus pas.
 
 Un article de moins de 800 mots n'est pas acceptable, même si toutes les informations
 qu'il contient sont exactes.
