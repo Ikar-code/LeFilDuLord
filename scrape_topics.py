@@ -171,19 +171,42 @@ def deduplique(liste):
 
 def scraper_categorie(categorie):
     """Scrape DuckDuckGo pour une catégorie donnée, sur les requêtes
-    pertinentes pour l'année en cours."""
+    pertinentes pour l'année en cours, en français ET en anglais."""
     resultats = []
-    requetes = [
+
+    # Requêtes en français
+    requetes_fr = [
         f"{categorie} actualite {ANNEE}",
         f"{categorie} annonce {ANNEE}",
         f"{categorie} news {ANNEE}",
     ]
 
+    # Requêtes en anglais (pour couvrir l'actu internationale)
+    # On traduit les catégories principales pour les requêtes anglaises
+    traductions = {
+        "gaming": "gaming",
+        "anime": "anime",
+        "manga": "manga",
+        "webtoon": "webtoon",
+        "culture internet": "internet culture",
+        "streaming": "streaming",
+        "cinema series": "movies tv series",
+        "technologie intelligence artificielle": "artificial intelligence technology",
+        "reseaux sociaux": "social media",
+        "esport": "esports",
+    }
+    cat_en = traductions.get(categorie, categorie)
+    requetes_en = [
+        f"{cat_en} news {ANNEE}",
+        f"{cat_en} announcement {ANNEE}",
+    ]
+
     try:
         with DDGS() as ddgs:
-            for q in requetes:
+            for q in requetes_fr + requetes_en:
+                region = "fr-fr" if q in requetes_fr else "en-us"
                 try:
-                    for r in (ddgs.text(q, region="fr-fr", max_results=15) or []):
+                    for r in (ddgs.text(q, region=region, max_results=10) or []):
                         r["categorie"] = categorie
                         resultats.append(r)
                 except Exception as e:
