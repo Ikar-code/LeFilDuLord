@@ -3,13 +3,32 @@ import { callGeminiWithRetry } from './geminiRetry.js';
 
 export async function scoreArticle(article, topic) {
   const aujourdHui = new Date().toLocaleDateString('fr-FR');
-  
+
   const prompt = `
-  
+
 Nous sommes le ${aujourdHui}.
 
 Tu es rédacteur en chef et responsable qualité du média "Le Fil du Lord".
-Ta mission est d'évaluer la qualité journalistique de cet article avant publication.
+
+Ta mission est d'évaluer uniquement la qualité de l'article généré
+à partir d'un sujet déjà vérifié par un système de fact-checking.
+
+IMPORTANT :
+
+Le sujet fourni ci-dessous a déjà été vérifié en amont.
+
+Tu ne dois PAS refaire une recherche.
+Tu ne dois PAS rejeter un article simplement parce que l'événement est récent,
+peu connu ou absent de tes connaissances.
+
+Le dossier vérifié fourni est la source de vérité.
+
+Ton rôle est uniquement de vérifier :
+- si l'article respecte les faits validés
+- si l'article ajoute des informations absentes
+- si l'article déforme l'événement
+- si l'article est bien écrit et publiable
+
 
 Article :
 
@@ -19,134 +38,120 @@ ${article.titre}
 Contenu :
 ${article.contenu}
 
-Sujet vérifié utilisé pour écrire l'article :
 
-Titre original :
+Sujet vérifié utilisé :
+
+Titre :
 ${topic.titre}
 
-Description vérifiée :
+Description :
 ${topic.description}
 
-Faits validés par le vérificateur :
-${topic.faitsVerifies?.join("\n") || "Aucun"}
+
+Faits validés :
+
+${
+topic.faitsVerifies && topic.faitsVerifies.length > 0
+? topic.faitsVerifies.map(f => "- " + f).join("\n")
+: "Aucun fait supplémentaire"
+}
+
 
 Résumé de vérification :
-${topic.verification || "Aucune"}
+
+${topic.verification || "Aucune vérification disponible"}
 
 
-Évalue l'article selon les critères suivants :
+
+Évalue l'article selon ces critères :
 
 
-1. Pertinence du sujet
-
-- L'article traite-t-il d'un événement réel, récent et identifiable ?
-- Le sujet présente-t-il un intérêt pour les lecteurs ?
-- L'événement est-il suffisamment important pour justifier un article ?
-
-
-2. Fiabilité journalistique (CRITÈRE PRIORITAIRE)
-
-Le sujet a déjà été vérifié en amont par un système de fact-checking.
-
-Tu ne dois PAS refaire une recherche ou rejeter l'article uniquement parce que
-tu ne connais pas l'information.
-
-Tu dois vérifier uniquement :
-
-- Est-ce que l'article respecte les faits validés ?
-- Est-ce qu'il ajoute des informations absentes ?
-- Est-ce qu'il déforme l'événement ?
-- Est-ce qu'il présente une hypothèse comme un fait ?
-
-Un événement présent dans les informations validées doit être considéré comme réel.
-
-L'article doit être fortement pénalisé si :
-
-- l'article présente une rumeur comme une annonce officielle
-- une date précise existe mais aucun élément ne prouve que l'événement a réellement eu lieu
-- les chiffres, citations ou détails semblent ajoutés sans preuve
-- l'article transforme une hypothèse, une fuite ou une rumeur en fait confirmé
-
-Un article bien écrit basé sur une fausse information doit recevoir une mauvaise note.
-
-La qualité rédactionnelle ne compense jamais un manque de fiabilité.
-
-Questions obligatoires avant de noter :
-
-- Que s'est-il réellement passé ?
-- Existe-t-il une preuve concrète de cet événement ?
-- L'acteur concerné a-t-il réellement annoncé cela ?
-- La date correspond-elle à un événement identifiable ?
-- La source est-elle crédible ?
-- Le sujet ressemble-t-il à une rumeur, une invention ou une confusion ?
-
-
-3. Qualité rédactionnelle
-
-- Le texte ressemble-t-il à un véritable article de média ?
-- L'introduction présente-t-elle rapidement le fait principal ?
-- Les paragraphes sont-ils organisés et compréhensibles ?
-- Le style est-il neutre et professionnel ?
-
-
-4. Richesse de l'article
-
-- Présence de contexte utile
-- Explication des conséquences
-- Présence d'informations concrètes
-- Développement suffisant du sujet
-- Le lecteur comprend-il pourquoi l'événement est important ?
-
-
-5. Respect du format Le Fil du Lord
+1. Respect des informations vérifiées
 
 L'article doit :
 
-- informer et non donner une opinion
-- éviter les spéculations
-- éviter les affirmations non vérifiées
-- rester accessible au grand public
-- ne pas exagérer l'importance d'une annonce
-- ne pas utiliser de formulation marketing
+- respecter les faits validés
+- utiliser les bonnes dates
+- utiliser les bons acteurs
+- utiliser les bons projets, œuvres ou entreprises
+- ne pas inventer de détails absents du dossier
 
 
-Pénalités importantes :
+Pénalise fortement :
 
-- Sujet vague ou simple tendance sans événement précis : -3 points
-- Informations inventées par rapport au dossier vérifié : -5 points
+- contradiction avec les faits validés
+- invention de chiffres
+- invention de citations
+- ajout d'événements inexistants
+- modification importante de l'information vérifiée
+
+
+2. Qualité journalistique
+
+Évalue :
+
+- titre clair et précis
+- introduction efficace
+- structure logique
+- paragraphes lisibles
+- ton professionnel
+- absence de répétitions
+- absence de formulation marketing
+
+
+3. Richesse de l'article
+
+L'article doit :
+
+- expliquer le contexte
+- expliquer pourquoi le sujet est intéressant
+- présenter les acteurs concernés
+- donner des informations concrètes
+- aider le lecteur à comprendre l'impact
+
+
+4. Respect du média "Le Fil du Lord"
+
+L'article doit :
+
+- informer sans donner d'opinion
+- rester neutre
+- être accessible aux jeunes générations
+- éviter le sensationnalisme
+- éviter les phrases exagérées
+
+
+Pénalités :
+
 - Contradiction avec les faits validés : -6 points
-- Ajout d'informations non présentes dans le dossier :-3 points
-- Source absente ou non crédible : score maximum 4/10
-- Absence totale de date ou contexte temporel : -2 points
-- Absence d'acteurs ou éléments concrets : -2 points
-- Article trop court ou ressemblant à un résumé : -2 points
-- Article principalement composé de généralités : -3 points
-- Ton trop subjectif ou promotionnel : -2 points
+- Informations inventées absentes du dossier : -5 points
+- Ajout de détails non vérifiés : -3 points
+- Article trop vague : -3 points
+- Article trop court ou résumé simple : -2 points
+- Ton promotionnel ou subjectif : -2 points
+- Manque de contexte : -2 points
 
 
 Score :
 
 10/10 :
-Article publiable directement, clair, précis, fiable et journalistique.
+Article publiable directement.
 
 7-9/10 :
-Article acceptable avec quelques améliorations possibles.
+Article correct avec petites améliorations possibles.
 
 5-6/10 :
-Article nécessitant une réécriture avant publication.
+Article nécessitant une réécriture.
 
 0-4/10 :
 Article non publiable.
 
 
-Avant de noter, réponds mentalement à ces questions :
+Avant de noter, vérifie uniquement :
 
-- Que s'est-il passé ?
-- Quand ?
-- Qui est concerné ?
-- Pourquoi est-ce important ?
-- Quelles preuves ou éléments vérifiables existent ?
-- La source permet-elle réellement de confirmer l'événement ?
+- L'article correspond-il au dossier vérifié ?
+- Des informations ont-elles été inventées ?
+- L'écriture ressemble-t-elle à un vrai article ?
 
 
 Réponds UNIQUEMENT en JSON valide :
@@ -155,38 +160,69 @@ Réponds UNIQUEMENT en JSON valide :
   "score": <note sur 10>,
   "commentaire": "explication courte"
 }
+
 `;
 
   const result = await callGeminiWithRetry(
     async (genAI) => {
-      const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-3.1-flash-lite'
+      });
+
       const r = await model.generateContent(prompt);
+
       const t = r.response.text().trim();
+
       if (!t) {
         const candidate = r.response.candidates?.[0];
-        await log('scoreArticle', 'Réponse Gemini vide (aucun texte généré), nouvelle tentative', 'info', {
-          finishReason: candidate?.finishReason,
-          safetyRatings: candidate?.safetyRatings,
-          promptFeedback: r.response.promptFeedback
-        });
-        throw new Error('REPONSE_VIDE: Gemini a renvoyé une réponse sans texte');
+
+        await log(
+          'scoreArticle',
+          'Réponse Gemini vide, nouvelle tentative',
+          'info',
+          {
+            finishReason: candidate?.finishReason,
+            safetyRatings: candidate?.safetyRatings
+          }
+        );
+
+        throw new Error('REPONSE_VIDE');
       }
+
       return r;
     },
     'scoreArticle'
   );
 
+
   const text = result.response.text().trim();
   const cleaned = text.replace(/```json|```/g, '').trim();
 
+
   let evaluation;
+
   try {
     evaluation = JSON.parse(cleaned);
   } catch (e) {
-    await log('scoreArticle', 'Erreur de parsing JSON: ' + e.message, 'error', { raw: text });
+
+    await log(
+      'scoreArticle',
+      'Erreur parsing JSON : ' + e.message,
+      'error',
+      { raw: text }
+    );
+
     throw e;
   }
 
-  await log('scoreArticle', `Score obtenu: ${evaluation.score}/10`, 'success', evaluation);
+
+  await log(
+    'scoreArticle',
+    `Score obtenu: ${evaluation.score}/10`,
+    'success',
+    evaluation
+  );
+
+
   return evaluation;
 }
