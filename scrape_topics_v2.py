@@ -38,122 +38,189 @@ ANNEE = datetime.now().year
 # Les requêtes DuckDuckGo sont des fallbacks si RSS indisponible
 
 SOURCES_OFFICIELLES = {
+
     "gaming": {
         "rss": [
-            "https://www.polygon.com/rss/index.xml",  # Polygon (jeux/tech)
-            "https://feeds.arstechnica.com/arstechnica/gaming",  # Ars Technica Gaming
-            "https://www.gamespot.com/feeds/mashup/",  # GameSpot
-            "https://www.pcgamer.com/feeds/all.xml",  # PC Gamer
-            "https://www.eurogamer.net/feed",  # Eurogamer
-            "https://www.ign.com/rss/articles/feed?tags=games",  # IGN Games
-            "https://kotaku.com/rss",  # Kotaku
-            "https://www.rockpapershotgun.com/feed",  # Rock Paper Shotgun
-            "https://www.nintendolife.com/feeds/news",  # Nintendo Life
-            "https://www.pushsquare.com/feeds/news",  # Push Square (PlayStation)
+            # Médias gaming
+            "https://www.polygon.com/rss/index.xml",
+            "https://feeds.arstechnica.com/arstechnica/gaming",
+            "https://www.gamespot.com/feeds/mashup/",
+            "https://www.pcgamer.com/feeds/all.xml",
+            "https://www.eurogamer.net/feed",
+            "https://www.ign.com/rss/articles/feed?tags=games",
+            "https://kotaku.com/rss",
+            "https://www.rockpapershotgun.com/feed",
+            "https://www.nintendolife.com/feeds/news",
+            "https://www.pushsquare.com/feeds/news",
+
+            # Officiels constructeurs / studios
+            "https://blog.playstation.com/feed/",
+            "https://news.xbox.com/en-us/feed/",
+            "https://www.nintendo.com/us/gaming-news/rss/",
+            "https://www.rockstargames.com/newswire/rss",
+            "https://www.ubisoft.com/en-us/rss/news",
+            "https://www.ea.com/news/rss.xml",
         ],
         "ddg_fallback": [
-            "gaming news 2026 site:gamespot.com OR site:polygon.com OR site:pcgamer.com",
+            f"gaming news {ANNEE} site:gamespot.com OR site:polygon.com OR site:pcgamer.com",
+            f"gaming announcement {ANNEE} site:playstation.com OR site:xbox.com OR site:nintendo.com",
         ]
     },
+
+
     "anime": {
         "rss": [
-            "https://www.crunchyroll.com/feed/news",  # Crunchyroll (si disponible)
-            "https://www.animenewsnetwork.com/rss.xml?ann-edition=us",  # Anime News Network (source officielle)
-            "https://www.crunchyroll.com/newsrss",  # Crunchyroll News (alternatif)
-            "https://otakuusamagazine.com/feed/",  # Otaku USA Magazine
-            "https://www.animenewsnetwork.com/all/rss.xml",  # ANN flux complet
+            "https://www.crunchyroll.com/newsrss",
+            "https://www.animenewsnetwork.com/rss.xml?ann-edition=us",
+            "https://www.animenewsnetwork.com/all/rss.xml",
+            "https://otakuusamagazine.com/feed/",
+
+            # Officiels studios/distributeurs
+            "https://www.toei-animation.com/en/feed/",
+            "https://www.aniplex.co.jp/rss/",
         ],
         "ddg_fallback": [
             f"anime news {ANNEE} site:animenewsnetwork.com OR site:crunchyroll.com",
+            f"anime announcement {ANNEE} site:toei-animation.com OR site:aniplex.co.jp",
         ]
     },
+
+
     "manga": {
         "rss": [
-            "https://www.animenewsnetwork.com/rss.xml?ann-edition=us",  # ANN couvre manga aussi
-            "https://www.shonenjump.com/rss",  # Shonen Jump officiel
-            "https://www.viz.com/rss/news",  # Viz Media (éditeur officiel manga)
+            "https://www.animenewsnetwork.com/rss.xml?ann-edition=us",
+            "https://www.shonenjump.com/rss",
+            "https://www.viz.com/rss/news",
+
+            # Editeurs
+            "https://www.shueisha.co.jp/rss/",
+            "https://www.kodansha.co.jp/rss/",
         ],
         "ddg_fallback": [
-            f"manga news {ANNEE} site:animenewsnetwork.com OR site:mangadex.cc",
+            f"manga news {ANNEE} site:animenewsnetwork.com OR site:mangadex.org",
+            f"manga announcement {ANNEE} site:viz.com OR site:shonenjump.com",
         ]
     },
+
+
     "webtoon": {
         "rss": [
-            # Naver Webtoon et Tapas n'ont pas de RSS public facilement accessible
-            # On les scrape via DuckDuckGo en ciblant directement
+            "https://www.webtoons.com/en/notice/rss",
+            "https://www.tappytoon.com/en/rss",
         ],
         "ddg_fallback": [
             f"webtoon news announcement {ANNEE} site:webtoons.com OR site:tapas.io OR site:naver.com",
             f"webtoon news {ANNEE} site:animenewsnetwork.com OR site:bookriot.com",
         ]
     },
+
+
     "streaming": {
         "rss": [
-            "https://www.theverge.com/rss/index.xml",  # The Verge (tech/streaming)
-            "https://variety.com/v/digital/feed/",  # Variety Digital/Streaming
-            "https://deadline.com/feed/",  # Deadline
-            "https://www.whats-on-netflix.com/feed/",  # What's on Netflix (spécialisé)
+            "https://www.theverge.com/rss/index.xml",
+            "https://variety.com/v/digital/feed/",
+            "https://deadline.com/feed/",
+            "https://www.whats-on-netflix.com/feed/",
+
+            # Officiels plateformes
+            "https://about.netflix.com/en/newsroom/rss",
+            "https://press.disney.com/rss",
+            "https://press.wbd.com/rss",
         ],
         "ddg_fallback": [
             f"netflix announcement {ANNEE} site:netflix.com",
             f"streaming news {ANNEE} site:theverge.com OR site:variety.com",
+            f"streaming release {ANNEE} site:disney.com OR site:max.com",
         ]
     },
+
+
     "cinema series": {
         "rss": [
-            "https://www.variety.com/feed/rss/film.xml",  # Variety Film
-            "https://www.hollywoodreporter.com/c/movies/feed/",  # Hollywood Reporter
-            "https://deadline.com/v/film/feed/",  # Deadline Film
-            "https://www.hollywoodreporter.com/c/tv/feed/",  # Hollywood Reporter TV
-            "https://www.indiewire.com/feed/",  # IndieWire
-            "https://collider.com/feed/",  # Collider
+            "https://www.variety.com/feed/rss/film.xml",
+            "https://www.hollywoodreporter.com/c/movies/feed/",
+            "https://deadline.com/v/film/feed/",
+            "https://www.hollywoodreporter.com/c/tv/feed/",
+            "https://www.indiewire.com/feed/",
+            "https://collider.com/feed/",
+
+            # Officiels
+            "https://www.marvel.com/rss",
+            "https://www.starwars.com/rss",
         ],
         "ddg_fallback": [
             f"film serie {ANNEE} site:variety.com OR site:hollywoodreporter.com",
+            f"movie announcement {ANNEE} site:marvel.com OR site:starwars.com",
         ]
     },
+
+
     "culture internet": {
         "rss": [
-            "https://feeds.theverge.com/theverse",  # The Verge
-            "https://www.reddit.com/r/technology/new.rss",  # Reddit Tech (pour tendances)
-            "https://knowyourmeme.com/newsfeed.rss",  # Know Your Meme (tendances/mèmes)
-            "https://www.dexerto.com/feed/",  # Dexerto (culture internet/streamers)
+            "https://feeds.theverge.com/theverse",
+            "https://www.reddit.com/r/technology/new.rss",
+            "https://knowyourmeme.com/newsfeed.rss",
+            "https://www.dexerto.com/feed/",
         ],
         "ddg_fallback": [
             f"internet trend viral {ANNEE}",
+            f"viral internet culture {ANNEE} site:knowyourmeme.com",
         ]
     },
+
+
     "technologie intelligence artificielle": {
         "rss": [
-            "https://feeds.arstechnica.com/arstechnica/index",  # Ars Technica
-            "https://www.theverge.com/rss/index.xml",  # The Verge
-            "https://techcrunch.com/feed/",  # TechCrunch
-            "https://www.technologyreview.com/feed/",  # MIT Technology Review
-            "https://venturebeat.com/category/ai/feed/",  # VentureBeat AI
-            "https://www.wired.com/feed/category/business/latest/rss",  # Wired
+            "https://feeds.arstechnica.com/arstechnica/index",
+            "https://www.theverge.com/rss/index.xml",
+            "https://techcrunch.com/feed/",
+            "https://www.technologyreview.com/feed/",
+            "https://venturebeat.com/category/ai/feed/",
+            "https://www.wired.com/feed/category/business/latest/rss",
+
+            # Officiels IA
+            "https://openai.com/news/rss.xml",
+            "https://www.anthropic.com/news/rss.xml",
+            "https://deepmind.google/discover/blog/rss.xml",
         ],
         "ddg_fallback": [
             f"AI intelligence artificielle {ANNEE} site:openai.com OR site:google.com/ai OR site:anthropic.com",
+            f"AI research breakthrough {ANNEE} site:arxiv.org OR site:nature.com",
         ]
     },
+
+
     "reseaux sociaux": {
         "rss": [
-            "https://www.theverge.com/rss/index.xml",  # The Verge (couvre les nouvelles des réseaux sociaux)
-            "https://techcrunch.com/tag/social/feed/",  # TechCrunch Social
-            "https://www.socialmediatoday.com/feeds/news/",  # Social Media Today
+            "https://www.theverge.com/rss/index.xml",
+            "https://techcrunch.com/tag/social/feed/",
+            "https://www.socialmediatoday.com/feeds/news/",
+
+            # Officiels
+            "https://about.fb.com/news/feed/",
+            "https://blog.youtube/rss/",
+            "https://newsroom.tiktok.com/rss",
         ],
         "ddg_fallback": [
             f"social media news {ANNEE} site:theverge.com OR site:techcrunch.com",
+            f"social media update {ANNEE} site:facebook.com OR site:tiktok.com OR site:youtube.com",
         ]
     },
+
+
     "esport": {
         "rss": [
-            "https://www.dexerto.com/feed/",  # Dexerto (esport + culture internet)
-            "https://dotesports.com/feed",  # Dot Esports
-            "https://esportsinsider.com/feed",  # Esports Insider
+            "https://www.dexerto.com/feed/",
+            "https://dotesports.com/feed",
+            "https://esportsinsider.com/feed",
+
+            # Officiels jeux esport
+            "https://www.leagueoflegends.com/en-us/news/rss/",
+            "https://playvalorant.com/en-us/news/feed/",
         ],
         "ddg_fallback": [
-            f"esport tournament 2026 site:liquipedia.net OR site:esportsinsider.com",
+            f"esport tournament {ANNEE} site:liquipedia.net OR site:esportsinsider.com",
+            f"esport news {ANNEE} site:riotgames.com OR site:blizzard.com",
         ]
     }
 }
