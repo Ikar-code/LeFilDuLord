@@ -29,7 +29,7 @@ function Footer() {
   );
 }
 
-export default function App() {
+export default function App() { 
   {/* MARKER-MAKE-KIT-INVOKED */}
   return (
     <BrowserRouter>
