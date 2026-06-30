@@ -4,7 +4,7 @@ import { HomePage } from "./components/HomePage";
 import { ArticlePage } from "./components/ArticlePage";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { PrivacyPage } from "./components/PrivacyPage";
-
+ 
 function Footer() {
   return (
     <footer className="border-t border-border mt-12 py-8 bg-card">
