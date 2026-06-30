@@ -7,6 +7,7 @@ export function Header() {
   const navigate = useNavigate();
   const isAdmin = location.pathname.startsWith("/admin");
   const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function fetchCategories() {
@@ -15,7 +16,6 @@ export function Header() {
         .select("categorie")
         .eq("statut", "published")
         .not("categorie", "is", null);
-
       if (!error && data) {
         const uniques = [...new Set(data.map((d) => d.categorie))].sort();
         setCategories(uniques);
@@ -24,8 +24,36 @@ export function Header() {
     fetchCategories();
   }, []);
 
+  // Sync la barre de recherche avec l'URL au chargement / navigation
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setSearch(params.get("q") || "");
+  }, [location.search]);
+
   function handleCategoryClick(cat) {
+    setSearch("");
     navigate(`/?categorie=${encodeURIComponent(cat)}`);
+  }
+
+  function handleSearchSubmit(e) {
+    e.preventDefault();
+    const q = search.trim();
+    if (q) {
+      navigate(`/?q=${encodeURIComponent(q)}`);
+    } else {
+      navigate("/");
+    }
+  }
+
+  function handleSearchChange(e) {
+    const val = e.target.value;
+    setSearch(val);
+    // Recherche en temps réel : met à jour l'URL à chaque frappe
+    if (val.trim()) {
+      navigate(`/?q=${encodeURIComponent(val.trim())}`, { replace: true });
+    } else {
+      navigate("/", { replace: true });
+    }
   }
 
   return (
@@ -43,8 +71,9 @@ export function Header() {
             {isAdmin ? "← Retour au site" : "Dashboard admin"}
           </Link>
         </div>
+
         <div className="py-5 text-center border-b border-border">
-          <Link to="/" className="inline-block">
+          <Link to="/" className="inline-block" onClick={() => setSearch("")}>
             <h1
               className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground"
               style={{ fontFamily: "var(--font-display)" }}
@@ -59,9 +88,39 @@ export function Header() {
             </p>
           </Link>
         </div>
+
+        {/* Barre de recherche */}
+        <div className="py-3 border-b border-border">
+          <form onSubmit={handleSearchSubmit} className="relative">
+            <input
+              type="text"
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Rechercher un article, un mot clé…"
+              className="w-full bg-background border border-border rounded-md px-4 py-2 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+              style={{ fontFamily: "var(--font-body)" }}
+            />
+            {search ? (
+              <button
+                type="button"
+                onClick={() => { setSearch(""); navigate("/"); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Effacer la recherche"
+              >
+                ✕
+              </button>
+            ) : (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">
+                🔍
+              </span>
+            )}
+          </form>
+        </div>
+
+        {/* Navigation par catégorie */}
         <nav className="flex items-center gap-6 py-2 overflow-x-auto">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => { setSearch(""); navigate("/"); }}
             className="text-xs font-medium text-muted-foreground hover:text-accent transition-colors whitespace-nowrap"
             style={{ fontFamily: "var(--font-body)" }}
           >
