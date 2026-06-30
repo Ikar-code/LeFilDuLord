@@ -18,8 +18,7 @@ export function PrivacyPage() {
         <section>
           <h2 className="text-lg font-semibold mb-2">1. Éditeur du site</h2>
           <p>
-            "Le Fil du Lord" est un média d'actualité indépendant développé par Lucas Rajany
-            sous l'identité créative Fairy Lord.
+            "Le Fil du Lord" est un site d'actualité édité par le groupe Fairy Lord.
             Pour toute question relative à cette politique de confidentialité, vous pouvez nous contacter à l'adresse suivante :{" "}
             <a href="mailto:lucanime0@gmail.com" className="text-accent hover:underline">
               lucanime0@gmail.com
@@ -41,6 +40,7 @@ export function PrivacyPage() {
             Ce site peut utiliser des cookies à des fins de mesure d'audience et, le cas échéant,
             pour l'affichage de publicités personnalisées via des partenaires tiers (par exemple Google AdSense).
           </p>
+
           <p className="mt-2">
             Conformément au Règlement Général sur la Protection des Données (RGPD), un bandeau de
             consentement vous permet d'accepter ou de refuser ces cookies non essentiels lors de
@@ -84,16 +84,10 @@ export function PrivacyPage() {
         <section>
           <h2 className="text-lg font-semibold mb-2">7. Contenu généré par IA</h2>
           <p>
-            Les articles publiés sur ce site sont générés et traités automatiquement
-            par des systèmes d'intelligence artificielle. Un contrôle qualité automatisé
-            est appliqué afin de limiter les erreurs, mais nous recommandons de vérifier
-            les informations auprès de sources complémentaires.
-          </p>
-        </section>
-
-        <section>
-          <p>
-            © 2026 Le Fil du Lord · Développé par Lucas Rajany
+            Les articles publiés sur ce site sont rédigés et vérifiés par des systèmes
+            d'intelligence artificielle de manière automatisée. Bien qu'un contrôle qualité
+            automatique soit appliqué, nous vous encourageons à vérifier les informations
+            auprès de sources complémentaires.
           </p>
         </section>
       </div>
