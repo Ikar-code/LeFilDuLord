@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2026 Lucas Rajany
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */   
+
 import { findTopics } from './src/step1_findTopics.js';
 import { verifyTopics } from './src/step1b_verifyTopics.js';
 import {
