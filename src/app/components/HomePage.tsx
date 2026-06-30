@@ -37,6 +37,7 @@ function getResume(contenu: string) {
 export function HomePage() {
   const [searchParams] = useSearchParams();
   const categorieFiltre = searchParams.get("categorie");
+  const recherche = searchParams.get("q")?.toLowerCase().trim() || "";
 
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +58,6 @@ export function HomePage() {
         }
 
         const { data, error } = await query;
-
         if (error) throw new Error(error.message);
         setArticles(data || []);
       } catch (e: any) {
@@ -69,6 +69,16 @@ export function HomePage() {
     }
     load();
   }, [categorieFiltre]);
+
+  // Filtrage par mot clé côté client (titre + contenu)
+  const articlesFiltres = recherche
+    ? articles.filter(
+        (a) =>
+          a.titre.toLowerCase().includes(recherche) ||
+          a.contenu.toLowerCase().includes(recherche) ||
+          (a.categorie?.toLowerCase().includes(recherche) ?? false)
+      )
+    : articles;
 
   if (loading) {
     return (
@@ -93,17 +103,17 @@ export function HomePage() {
     );
   }
 
-  const [featured, ...rest] = articles;
+  const [featured, ...rest] = articlesFiltres;
 
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-      {categorieFiltre && (
+      {/* Bandeau contextuel : recherche ou catégorie */}
+      {(recherche || categorieFiltre) && (
         <div className="mb-6">
-          <span
-            className="text-xs text-muted-foreground"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            Articles dans la catégorie « {categorieFiltre} »
+          <span className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-body)" }}>
+            {recherche
+              ? `${articlesFiltres.length} résultat${articlesFiltres.length !== 1 ? "s" : ""} pour « ${recherche} »`
+              : `Articles dans la catégorie « ${categorieFiltre} »`}
           </span>
         </div>
       )}
@@ -171,9 +181,7 @@ export function HomePage() {
               ) : (
                 <div
                   className="w-full aspect-[4/3] rounded-sm flex items-end p-4"
-                  style={{
-                    background: "linear-gradient(135deg, #1A1209 0%, #3D2B1F 100%)",
-                  }}
+                  style={{ background: "linear-gradient(135deg, #1A1209 0%, #3D2B1F 100%)" }}
                 >
                   <span
                     className="text-white/60 text-xs leading-snug"
@@ -194,10 +202,12 @@ export function HomePage() {
         ))}
       </div>
 
-      {articles.length === 0 && (
+      {articlesFiltres.length === 0 && (
         <div className="text-center py-20">
           <p className="text-muted-foreground text-sm" style={{ fontFamily: "var(--font-body)" }}>
-            {categorieFiltre
+            {recherche
+              ? `Aucun article trouvé pour « ${recherche} ».`
+              : categorieFiltre
               ? `Aucun article publié dans la catégorie « ${categorieFiltre} » pour le moment.`
               : "Aucun article publié pour le moment."}
           </p>
