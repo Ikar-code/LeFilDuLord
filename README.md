@@ -244,4 +244,4 @@ https://lefildulord.vercel.app/
 
 # 📜 Licence
 
-MIT
+Apache License
