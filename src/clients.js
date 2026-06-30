@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2026 Lucas Rajany
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */   
+
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
