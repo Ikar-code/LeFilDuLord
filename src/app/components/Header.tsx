@@ -6,7 +6,7 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const isAdmin = location.pathname.startsWith("/admin");
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export function Header() {
         .eq("statut", "published")
         .not("categorie", "is", null);
       if (!error && data) {
-        const uniques = [...new Set(data.map((d) => d.categorie))].sort();
+        const uniques = [...new Set(data.map((d) => d.categorie as string))].sort();
         setCategories(uniques);
       }
     }
@@ -30,12 +30,12 @@ export function Header() {
     setSearch(params.get("q") || "");
   }, [location.search]);
 
-  function handleCategoryClick(cat) {
+  function handleCategoryClick(cat: string) {
     setSearch("");
     navigate(`/?categorie=${encodeURIComponent(cat)}`);
   }
 
-  function handleSearchSubmit(e) {
+  function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
     const q = search.trim();
     if (q) {
@@ -45,7 +45,7 @@ export function Header() {
     }
   }
 
-  function handleSearchChange(e) {
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
     setSearch(val);
     // Recherche en temps réel : met à jour l'URL à chaque frappe
