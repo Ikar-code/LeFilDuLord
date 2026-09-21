@@ -34,7 +34,7 @@ Aucun texte avant ou après.
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GROQ_API_KEY}` },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'qwen/qwen3.8-27b',
       response_format: { type: 'json_object' },
       messages: [{ role: 'user', content: prompt }]
     })
