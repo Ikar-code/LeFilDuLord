@@ -2,13 +2,8 @@ import { supabase } from './clients.js';
 import { log } from './logger.js';
 import { GROQ_API_KEY } from './clients.js';
 
-// Demande à Groq si le nouveau sujet est un doublon sémantique
-// (même événement reformulé) d'un des titres déjà en base.
-// Retourne le titre existant correspondant si doublon, sinon null.
 async function trouverDoublonSemantique(topic, titresExistants) {
-  if (!titresExistants || titresExistants.length === 0) {
-    return null;
-  }
+  if (!titresExistants || titresExistants.length === 0) return null;
 
   const prompt = `
 Tu compares un nouveau sujet d'actualité à une liste de titres déjà publiés ou en attente
@@ -27,37 +22,21 @@ ${titresExistants.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 
 RÈGLE :
 - Un doublon = le même événement précis (même annonce, même produit, même date, même acteur).
-- Ce n'est PAS un doublon si c'est juste le même sujet général (ex: deux annonces différentes
-  sur le même jeu, deux épisodes différents d'une même série) mais un événement distinct.
-- En cas de doute, considère que ce n'est PAS un doublon (mieux vaut un doublon raté
-  qu'un vrai sujet rejeté à tort).
+- Ce n'est PAS un doublon si c'est juste le même sujet général mais un événement distinct.
+- En cas de doute, considère que ce n'est PAS un doublon.
 
 Réponds UNIQUEMENT en JSON valide :
-{
-  "doublon": true ou false,
-  "titreCorrespondant": "le titre exact de la liste qui correspond, ou null",
-  "raison": "explication courte"
-}
-
+{ "doublon": true ou false, "titreCorrespondant": "le titre exact ou null", "raison": "explication courte" }
 Aucun texte avant ou après.
 `;
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${GROQ_API_KEY}`
-    },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GROQ_API_KEY}` },
     body: JSON.stringify({
-      model: 'qwen/qwen3-32b',
-      reasoning_effort: 'none',
+      model: 'llama-3.3-70b-versatile',
       response_format: { type: 'json_object' },
-      messages: [
-        {
-          role: 'user',
-          content: prompt
-        }
-      ]
+      messages: [{ role: 'user', content: prompt }]
     })
   });
 
@@ -78,22 +57,12 @@ Aucun texte avant ou après.
     throw e;
   }
 
-  if (verdict.doublon) {
-    return verdict.titreCorrespondant || titresExistants[0];
-  }
-
-  return null;
+  return verdict.doublon ? (verdict.titreCorrespondant || titresExistants[0]) : null;
 }
 
-// Filtre uniquement : retourne les sujets qui n'existent pas déjà dans 'sujets'.
-// Vérifie d'abord les doublons exacts (rapide, gratuit), puis les doublons
-// reformulés via Groq (même événement, formulation différente).
-// Ne fait aucune insertion en base.
 export async function filterNewTopics(topics) {
   const newTopics = [];
 
-  // Récupère une fois tous les titres existants (sujets en attente + déjà traités récemment)
-  // pour limiter les allers-retours Supabase et donner du contexte à Gemini.
   const { data: sujetsExistants, error: erreurLecture } = await supabase
     .from('sujets')
     .select('titre')
@@ -107,12 +76,7 @@ export async function filterNewTopics(topics) {
   const titresExistants = (sujetsExistants || []).map((s) => s.titre);
 
   for (const topic of topics) {
-    // 1. Vérification exacte (rapide, gratuite)
-    const { data, error } = await supabase
-      .from('sujets')
-      .select('id')
-      .eq('titre', topic.titre)
-      .limit(1);
+    const { data, error } = await supabase.from('sujets').select('id').eq('titre', topic.titre).limit(1);
 
     if (error) {
       await log('checkDuplicates', 'Erreur vérification: ' + error.message, 'error', topic);
@@ -124,32 +88,18 @@ export async function filterNewTopics(topics) {
       continue;
     }
 
-    // 2. Vérification sémantique via Groq (même événement, formulation différente)
     try {
       const titreDoublon = await trouverDoublonSemantique(topic, titresExistants);
-
       if (titreDoublon) {
-        await log(
-          'checkDuplicates',
-          `Sujet déjà existant (reformulé), ignoré: "${topic.titre}" ≈ "${titreDoublon}"`,
-          'info'
-        );
+        await log('checkDuplicates', `Sujet déjà existant (reformulé), ignoré: "${topic.titre}" ≈ "${titreDoublon}"`, 'info');
         continue;
       }
     } catch (e) {
-      // Si la vérification sémantique échoue (quota, erreur réseau, JSON cassé...), on
-      // rejette le sujet par sécurité : mieux vaut perdre un sujet valide qu'enregistrer
-      // un doublon non détecté.
-      await log(
-        'checkDuplicates',
-        `Vérification sémantique échouée pour "${topic.titre}", sujet rejeté par sécurité: ${e.message}`,
-        'warning'
-      );
+      await log('checkDuplicates', `Vérification sémantique échouée pour "${topic.titre}", sujet rejeté par sécurité: ${e.message}`, 'warning');
       continue;
     }
 
     newTopics.push(topic);
-    // Évite qu'un doublon présent deux fois dans le même batch passe entre les mailles
     titresExistants.push(topic.titre);
   }
 
@@ -157,17 +107,8 @@ export async function filterNewTopics(topics) {
   return newTopics;
 }
 
-// Vérifie s'il existe déjà un sujet en attente (statut 'nouveau') en base.
-// Si oui, le retourne (le plus ancien d'abord, pour ne pas laisser de sujet de côté indéfiniment).
-// Si non, retourne null.
-// `exclureTitres` (Set ou tableau de titres) permet d'ignorer des sujets déjà essayés
-// dans le run en cours (ex: un sujet qui vient d'être rejeté par le scoring).
 export async function getNextPendingTopic(exclureTitres = null) {
-  let query = supabase
-    .from('sujets')
-    .select('*')
-    .eq('statut', 'nouveau')
-    .order('date_creation', { ascending: true });
+  let query = supabase.from('sujets').select('*').eq('statut', 'nouveau').order('date_creation', { ascending: true });
 
   const exclusions = exclureTitres ? Array.from(exclureTitres) : [];
   if (exclusions.length > 0) {
@@ -189,12 +130,8 @@ export async function getNextPendingTopic(exclureTitres = null) {
   return null;
 }
 
-// Insère plusieurs sujets validés en une fois dans la table 'sujets' (statut 'nouveau').
-// Retourne les lignes insérées (avec leur id généré).
 export async function insertSujets(topics) {
-  if (!topics || topics.length === 0) {
-    return [];
-  }
+  if (!topics || topics.length === 0) return [];
 
   const rows = topics.map((topic) => ({
     titre: topic.titre,
@@ -205,10 +142,7 @@ export async function insertSujets(topics) {
     statut: 'nouveau'
   }));
 
-  const { data, error } = await supabase
-    .from('sujets')
-    .insert(rows)
-    .select();
+  const { data, error } = await supabase.from('sujets').insert(rows).select();
 
   if (error) {
     await log('checkDuplicates', 'Erreur insertion sujets: ' + error.message, 'error', topics);
@@ -219,16 +153,9 @@ export async function insertSujets(topics) {
   return data;
 }
 
-// Enregistre l'échec d'un sujet (score insuffisant après writeArticle).
-// Si le sujet atteint 2 échecs au total, il est supprimé de la base
-// (sinon il continuerait à boucler indéfiniment via getNextPendingTopic).
-// Sinon, on incrémente simplement son compteur d'échecs pour lui laisser une 2e chance.
 export async function enregistrerEchecSujet(sujetId) {
   const { data: sujetActuel, error: erreurLecture } = await supabase
-    .from('sujets')
-    .select('nombre_echecs, titre')
-    .eq('id', sujetId)
-    .single();
+    .from('sujets').select('nombre_echecs, titre').eq('id', sujetId).single();
 
   if (erreurLecture) {
     await log('checkDuplicates', 'Erreur lecture sujet pour incrément échec: ' + erreurLecture.message, 'error');
@@ -243,27 +170,16 @@ export async function enregistrerEchecSujet(sujetId) {
     if (erreurSuppression) {
       await log('checkDuplicates', 'Erreur suppression sujet après échecs répétés: ' + erreurSuppression.message, 'error');
     } else {
-      await log(
-        'checkDuplicates',
-        `Sujet supprimé après ${nouveauCompteur} échecs: "${sujetActuel.titre}"`,
-        'info'
-      );
+      await log('checkDuplicates', `Sujet supprimé après ${nouveauCompteur} échecs: "${sujetActuel.titre}"`, 'info');
     }
     return;
   }
 
-  const { error: erreurMaj } = await supabase
-    .from('sujets')
-    .update({ nombre_echecs: nouveauCompteur })
-    .eq('id', sujetId);
+  const { error: erreurMaj } = await supabase.from('sujets').update({ nombre_echecs: nouveauCompteur }).eq('id', sujetId);
 
   if (erreurMaj) {
     await log('checkDuplicates', 'Erreur mise à jour compteur échec: ' + erreurMaj.message, 'error');
   } else {
-    await log(
-      'checkDuplicates',
-      `Échec enregistré (${nouveauCompteur}/${SEUIL_SUPPRESSION}) pour "${sujetActuel.titre}", une chance restante`,
-      'info'
-    );
+    await log('checkDuplicates', `Échec enregistré (${nouveauCompteur}/${SEUIL_SUPPRESSION}) pour "${sujetActuel.titre}", une chance restante`, 'info');
   }
 }
