@@ -3,6 +3,7 @@ import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
 const CHEMIN_SCRAPING = process.env.SCRAPED_TOPICS_PATH || './scraped_topics.json';
+const MAX_RESULTATS_PROMPT = 30; // Limite envoyée à Gemini pour éviter les JSON tronqués
 
 function chargerResultatsScrapes() {
   const raw = readFileSync(CHEMIN_SCRAPING, 'utf-8');
@@ -25,6 +26,17 @@ export async function findTopics() {
     return [];
   }
 
+  // On limite le nombre de résultats envoyés à Gemini pour éviter les réponses tronquées.
+  // Le scraper peut collecter jusqu'à 100 résultats mais Gemini n'a besoin que des 30 premiers.
+  const resultatsPourPrompt = resultatsScrapes.slice(0, MAX_RESULTATS_PROMPT).map(r => ({
+    titre: r.titre,
+    extrait: r.extrait,
+    url: r.url,
+    categorie: r.categorie,
+  }));
+
+  await log('findTopics', `${resultatsScrapes.length} résultats scrapés, ${resultatsPourPrompt.length} envoyés à Gemini`, 'info');
+
   const prompt = `
 Tu es rédacteur en chef de "Le Fil du Lord", un média numérique francophone
 destiné principalement aux jeunes générations.
@@ -37,7 +49,7 @@ PARMI CES RÉSULTATS UNIQUEMENT, jusqu'à 5 sujets d'actualité RÉELS, RÉCENTS
 et VÉRIFIABLES qui peuvent devenir de vrais articles journalistiques pour un public jeune.
 
 Résultats scrapés :
-${JSON.stringify(resultatsScrapes, null, 2)}
+${JSON.stringify(resultatsPourPrompt)}
 
 RÈGLE FONDAMENTALE :
 
