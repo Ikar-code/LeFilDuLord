@@ -19,12 +19,18 @@ function formatDate(iso: string) {
 
 function getCategoryColor(cat?: string) {
   const map: Record<string, string> = {
-    Politique: "text-blue-700 bg-blue-50",
-    Économie: "text-amber-700 bg-amber-50",
-    Technologie: "text-violet-700 bg-violet-50",
-    Société: "text-teal-700 bg-teal-50",
-    Environnement: "text-green-700 bg-green-50",
-    Sport: "text-orange-700 bg-orange-50",
+    "gaming":                    "text-violet-700 bg-violet-50",
+    "anime":                     "text-pink-700 bg-pink-50",
+    "manga":                     "text-orange-700 bg-orange-50",
+    "webtoon":                   "text-yellow-700 bg-yellow-50",
+    "cinema":                    "text-red-700 bg-red-50",
+    "streaming":                 "text-blue-700 bg-blue-50",
+    "culture-internet":          "text-teal-700 bg-teal-50",
+    "intelligence-artificielle": "text-indigo-700 bg-indigo-50",
+    "reseaux-sociaux":           "text-sky-700 bg-sky-50",
+    "esport":                    "text-green-700 bg-green-50",
+    "reunion":                   "text-amber-700 bg-amber-50",
+    "evenements":                "text-rose-700 bg-rose-50",
   };
   return map[cat || ""] || "text-muted-foreground bg-muted";
 }
@@ -70,7 +76,6 @@ export function HomePage() {
     load();
   }, [categorieFiltre]);
 
-  // Filtrage par mot clé côté client (titre + contenu)
   const articlesFiltres = recherche
     ? articles.filter(
         (a) =>
@@ -107,7 +112,6 @@ export function HomePage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-      {/* Bandeau contextuel : recherche ou catégorie */}
       {(recherche || categorieFiltre) && (
         <div className="mb-6">
           <span className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-body)" }}>
@@ -145,10 +149,7 @@ export function HomePage() {
                 {getResume(featured.contenu)}
               </p>
               <div className="flex items-center gap-4">
-                <time
-                  className="text-xs text-muted-foreground"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
+                <time className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-body)" }}>
                   {formatDate(featured.date_publication)}
                 </time>
                 <Link
@@ -170,10 +171,7 @@ export function HomePage() {
                     loading="eager"
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-                    <span
-                      className="text-white/90 text-xs leading-snug"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
+                    <span className="text-white/90 text-xs leading-snug" style={{ fontFamily: "var(--font-body)" }}>
                       À la une · {formatDate(featured.date_publication)}
                     </span>
                   </div>
@@ -183,10 +181,7 @@ export function HomePage() {
                   className="w-full aspect-[4/3] rounded-sm flex items-end p-4"
                   style={{ background: "linear-gradient(135deg, #1A1209 0%, #3D2B1F 100%)" }}
                 >
-                  <span
-                    className="text-white/60 text-xs leading-snug"
-                    style={{ fontFamily: "var(--font-body)" }}
-                  >
+                  <span className="text-white/60 text-xs leading-snug" style={{ fontFamily: "var(--font-body)" }}>
                     À la une · {formatDate(featured.date_publication)}
                   </span>
                 </div>
