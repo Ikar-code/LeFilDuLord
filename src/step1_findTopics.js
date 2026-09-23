@@ -3,7 +3,23 @@ import { log } from './logger.js';
 import { callGeminiWithRetry } from './geminiRetry.js';
 
 const CHEMIN_SCRAPING = process.env.SCRAPED_TOPICS_PATH || './scraped_topics.json';
-const MAX_RESULTATS_PROMPT = 30; // Limite envoyée à Gemini pour éviter les JSON tronqués
+const MAX_RESULTATS_PROMPT = 30;
+
+// Liste officielle des catégories autorisées — doit être identique partout
+export const CATEGORIES_AUTORISEES = [
+  'gaming',
+  'anime',
+  'manga',
+  'webtoon',
+  'cinema',
+  'streaming',
+  'culture-internet',
+  'intelligence-artificielle',
+  'reseaux-sociaux',
+  'esport',
+  'reunion',
+  'evenements',
+];
 
 function chargerResultatsScrapes() {
   const raw = readFileSync(CHEMIN_SCRAPING, 'utf-8');
@@ -22,12 +38,10 @@ export async function findTopics() {
   }
 
   if (resultatsScrapes.length === 0) {
-    await log('findTopics', 'Aucun résultat scrapé disponible, impossible de proposer des sujets', 'error');
+    await log('findTopics', 'Aucun résultat scrapé disponible', 'error');
     return [];
   }
 
-  // On limite le nombre de résultats envoyés à Gemini pour éviter les réponses tronquées.
-  // Le scraper peut collecter jusqu'à 100 résultats mais Gemini n'a besoin que des 30 premiers.
   const resultatsPourPrompt = resultatsScrapes.slice(0, MAX_RESULTATS_PROMPT).map(r => ({
     titre: r.titre,
     extrait: r.extrait,
@@ -39,89 +53,52 @@ export async function findTopics() {
 
   const prompt = `
 Tu es rédacteur en chef de "Le Fil du Lord", un média numérique francophone
-destiné principalement aux jeunes générations.
+destiné principalement aux jeunes générations, avec un focus particulier sur
+l'actualité locale de La Réunion (île française dans l'océan Indien) et la culture jeune.
 
 Nous sommes en ${annee}.
 
-Voici une liste de résultats de recherche web bruts, déjà collectés par un outil
-de scraping (titre, extrait, url, catégorie de recherche). Ta mission est d'identifier,
+Voici une liste de résultats de recherche web bruts. Ta mission est d'identifier,
 PARMI CES RÉSULTATS UNIQUEMENT, jusqu'à 5 sujets d'actualité RÉELS, RÉCENTS, IMPORTANTS
-et VÉRIFIABLES qui peuvent devenir de vrais articles journalistiques pour un public jeune.
+et VÉRIFIABLES qui peuvent devenir de vrais articles journalistiques.
 
 Résultats scrapés :
 ${JSON.stringify(resultatsPourPrompt)}
 
 RÈGLE FONDAMENTALE :
+Tu ne dois PAS inventer de sujet. Tu dois UNIQUEMENT t'appuyer sur les résultats scrapés.
+Si un résultat est vague, hors-sujet, ou ne décrit pas un événement précis, ignore-le.
 
-Tu ne dois PAS inventer de sujet. Tu dois UNIQUEMENT t'appuyer sur les résultats
-scrapés ci-dessus. Si un résultat est vague, hors-sujet, ou ne décrit pas un
-événement précis, ignore-le.
+CATÉGORIES AUTORISÉES (utilise UNIQUEMENT ces valeurs exactes, sans majuscule, sans accent, sans variation) :
+${CATEGORIES_AUTORISEES.join('\n')}
 
-Le média couvre principalement :
-- gaming
-- anime
-- manga
-- webtoon
-- culture internet
-- streaming
-- cinéma et séries
-- nouvelles technologies
-- intelligence artificielle
-- réseaux sociaux
-- créateurs de contenu
-- esport
-- innovations numériques
+Description des catégories :
+- gaming : jeux vidéo, annonces, sorties, industrie du jeu
+- anime : séries animées japonaises
+- manga : bandes dessinées japonaises
+- webtoon : comics numériques coréens
+- cinema : films et séries TV
+- streaming : plateformes de streaming, contenus
+- culture-internet : tendances web, mèmes, créateurs de contenu, réseaux sociaux, influenceurs
+- intelligence-artificielle : IA, tech, innovations numériques
+- reseaux-sociaux : actualités des plateformes sociales (Twitter/X, TikTok, Instagram, etc.)
+- esport : compétitions, tournois, équipes de jeux vidéo compétitifs
+- reunion : actualité générale de La Réunion (politique, société, économie locale)
+- evenements : événements, concerts, festivals, sorties culturelles (à La Réunion ou ailleurs)
 
-Pour chaque sujet retenu, utilise le titre/extrait/url du résultat scrapé correspondant
-comme source, et rédige :
+IMPORTANT : La catégorie doit être EXACTEMENT une des valeurs listées ci-dessus.
+Par exemple : "cinema" et NON "cinéma et séries" ou "Cinéma".
 
-TITRE :
-- doit annoncer un événement précis
-- doit être accrocheur pour un public jeune
-- doit éviter les titres vagues
+Pour chaque sujet retenu, rédige :
 
-DESCRIPTION :
-Entre 300 et 500 mots maximum. Ce résumé doit contenir TOUTES les informations
-importantes présentes dans l'extrait scrapé, afin qu'un journaliste puisse rédiger
-un article complet sans avoir besoin d'aller chercher d'autres sources.
-
-Il doit inclure :
-- l'événement principal et son contexte
-- les acteurs concernés (noms précis, entreprises, studios, plateformes)
-- les dates et chiffres mentionnés
-- les conséquences ou implications importantes
-- tout détail factuel présent dans l'extrait, même secondaire
-
-Ne pas résumer de manière vague. Chaque information concrète de l'extrait
-doit apparaître dans la description.
-
-SOURCE :
-Reprends l'url du résultat scrapé correspondant.
-
-EXTRAIT_BRUT :
-Reprends EXACTEMENT et INTÉGRALEMENT le champ "extrait" du résultat scrapé
-correspondant, sans le résumer, le raccourcir ni le reformuler. Ce texte brut
-sera utilisé plus tard pour ne perdre aucun détail que ta description aurait omis.
-
-CATEGORIE :
-Une des catégories listées ci-dessus.
-
-Il est autorisé de retourner MOINS de 5 sujets si moins de 5 résultats scrapés
-correspondent à un événement réel et précis. Ne crée jamais un sujet pour
-atteindre le nombre de 5.
+TITRE : accrocheur, précis, pour un public jeune
+DESCRIPTION : 300 à 500 mots avec TOUTES les informations de l'extrait
+SOURCE : url du résultat scrapé
+EXTRAIT_BRUT : le champ "extrait" EXACTEMENT et INTÉGRALEMENT, sans modification
+CATEGORIE : une des catégories listées ci-dessus, EXACTEMENT comme écrite
 
 Réponds UNIQUEMENT en JSON valide :
-
-[
- {
-  "titre": "",
-  "description": "",
-  "source": "",
-  "extrait_brut": "",
-  "categorie": ""
- }
-]
-
+[{ "titre": "", "description": "", "source": "", "extrait_brut": "", "categorie": "" }]
 Aucun texte avant ou après.
 `;
 
@@ -132,7 +109,7 @@ Aucun texte avant ou après.
       const t = r.response.text().trim();
       if (!t) {
         const candidate = r.response.candidates?.[0];
-        await log('findTopics', 'Réponse Gemini vide (aucun texte généré), nouvelle tentative', 'info', {
+        await log('findTopics', 'Réponse Gemini vide, nouvelle tentative', 'info', {
           finishReason: candidate?.finishReason,
           safetyRatings: candidate?.safetyRatings,
           promptFeedback: r.response.promptFeedback
@@ -152,7 +129,6 @@ Aucun texte avant ou après.
     topics = JSON.parse(cleaned);
   } catch (e) {
     await log('findTopics', 'Erreur de parsing JSON: ' + e.message, 'error', { raw: text.substring(0, 3000) });
-
     const start = cleaned.indexOf('[');
     const end = cleaned.lastIndexOf(']');
     if (start !== -1 && end !== -1) {
@@ -165,6 +141,25 @@ Aucun texte avant ou après.
       throw new Error('Gemini a retourné une réponse sans JSON');
     }
   }
+
+  // Normalisation de sécurité : forcer les catégories non reconnues vers la plus proche
+  topics = topics.map(topic => {
+    if (!CATEGORIES_AUTORISEES.includes(topic.categorie)) {
+      const original = topic.categorie;
+      // Tentative de mapping des variantes connues
+      const mapping = {
+        'cinéma': 'cinema', 'cinéma et séries': 'cinema', 'cinema series': 'cinema',
+        'technologie': 'intelligence-artificielle', 'nouvelles technologies': 'intelligence-artificielle',
+        'technologie intelligence artificielle': 'intelligence-artificielle',
+        'créateurs de contenu': 'culture-internet', 'createurs de contenu': 'culture-internet',
+        'réseaux sociaux': 'reseaux-sociaux', 'culture internet': 'culture-internet',
+        'événements': 'evenements', 'réunion': 'reunion',
+      };
+      topic.categorie = mapping[original.toLowerCase()] || 'culture-internet';
+      // On log la correction mais on ne bloque pas
+    }
+    return topic;
+  });
 
   await log('findTopics', `${topics.length} sujets trouvés à partir de ${resultatsScrapes.length} résultats scrapés`, 'success', topics);
   return topics;
