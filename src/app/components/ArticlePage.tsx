@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { supabase } from "../../utils/supabase/client";
+import { labelCategorie } from "../categories";
 
 interface Article {
   id: string;
@@ -126,7 +127,7 @@ export function ArticlePage() {
             className="inline-block text-[10px] font-semibold tracking-widest uppercase text-accent mb-3"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            {article.categorie}
+            {labelCategorie(article.categorie)}
           </span>
         )}
         <h1

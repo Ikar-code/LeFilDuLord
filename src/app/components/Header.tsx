@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabase/client";
+import { CATEGORIES_CYBER, labelCategorie } from "../categories";
 
 export function Header() {
   const location = useLocation();
@@ -17,8 +18,9 @@ export function Header() {
         .eq("statut", "published")
         .not("categorie", "is", null);
       if (!error && data) {
-        const uniques = [...new Set(data.map((d) => d.categorie as string))].sort();
-        setCategories(uniques);
+        // Seules les catégories cybersécurité ayant au moins un article sont affichées, dans l'ordre éditorial.
+        const presentes = new Set(data.map((d) => d.categorie as string));
+        setCategories(CATEGORIES_CYBER.map((c) => c.slug).filter((slug) => presentes.has(slug)));
       }
     }
     fetchCategories();
@@ -84,7 +86,7 @@ export function Header() {
               className="text-xs tracking-[0.2em] uppercase text-muted-foreground mt-1"
               style={{ fontFamily: "var(--font-body)" }}
             >
-              L'actualité par l'intelligence artificielle
+              La cybersécurité vue par l'intelligence artificielle
             </p>
           </Link>
         </div>
@@ -133,7 +135,7 @@ export function Header() {
               className="text-xs font-medium text-muted-foreground hover:text-accent transition-colors whitespace-nowrap"
               style={{ fontFamily: "var(--font-body)" }}
             >
-              {cat}
+              {labelCategorie(cat)}
             </button>
           ))}
         </nav>

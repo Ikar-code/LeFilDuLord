@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { supabase } from "../../../utils/supabase/client";
+import { labelCategorie } from "../categories";
 
 interface Article {
   id: string;
@@ -143,7 +144,7 @@ export function HomePage() {
                   className={`inline-block text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-sm mb-3 ${getCategoryColor(featured.categorie)}`}
                   style={{ fontFamily: "var(--font-body)" }}
                 >
-                  {featured.categorie}
+                  {labelCategorie(featured.categorie)}
                 </span>
               )}
               <Link to={`/article/${featured.id}`} className="group block">
@@ -243,7 +244,7 @@ function ArticleCard({ article }: { article: Article }) {
             className={`inline-block self-start text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-sm ${getCategoryColor(article.categorie)}`}
             style={{ fontFamily: "var(--font-body)" }}
           >
-            {article.categorie}
+            {labelCategorie(article.categorie)}
           </span>
         )}
         <Link to={`/article/${article.id}`} className="group flex-1">
