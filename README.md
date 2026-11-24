@@ -1,6 +1,6 @@
 # 📰 Le Fil du Lord
 
-Système complet de média d'actualité francophone automatisé par intelligence artificielle.
+Système complet de média d'actualité francophone **spécialisé en cybersécurité**, automatisé par intelligence artificielle (avec un regard particulier sur La Réunion).
 
 Le projet transforme automatiquement des informations brutes en articles publiables grâce à un pipeline composé de collecte de données, vérification, rédaction IA, contrôle qualité et publication.
 
@@ -118,6 +118,40 @@ Publication automatique
 
 ---
 
+# 🧭 Ligne éditoriale cybersécurité
+
+Catégories : `vulnerabilites`, `cyberattaques`, `ransomware-malwares`, `fuites-donnees`,
+`arnaques-phishing`, `ia-securite`, `reglementation`, `geopolitique-cyber`,
+`outils-bonnes-pratiques`, `evenements`, `reunion`.
+
+- Angle informatif et défensif : qui est touché, quel risque, comment se protéger.
+- Aucun détail opérationnel permettant de reproduire une attaque (contrôlé par le scoreur).
+- Sources citées dans le texte et affichées sous l'article (URL d'origine + sources consultées par la vérification).
+- Les sources RSS et leurs filtres de mots-clés sont dans `scrape_topics_v2.py` (`SOURCES`).
+  Les flux morts sont listés dans les logs du scraper et dans `scraped_topics.json`.
+
+---
+
+# ⚙️ Exécuter la pipeline
+
+1. Exécuter `supabase/migrations/2026-11-24_pipeline_v2.sql` dans l'éditeur SQL de Supabase (une seule fois).
+2. Scraping : `python scrape_topics_v2.py scraped_topics.json`
+3. Pipeline : `node run_pipeline.js` (code de sortie 1 en cas d'échec)
+
+Le workflow `.github/workflows/pipeline.yml` fait les deux, toutes les 2 heures, avec un seul run à la fois.
+Chaque message de la table `journaux` est préfixé par `[run <id>]` pour retrouver un run.
+
+Détails de la pipeline :
+
+- Sélection des sujets équilibrée par catégorie (poids renforcé pour `reunion`).
+- Le texte réel de la source est récupéré par le scraper ; le rédacteur le reformule et cite la source.
+- Faits vérifiés et sources de la vérification sont enregistrés dans `sujets` puis relus à la rédaction.
+- Si le scoreur refuse un article, ses remarques sont renvoyées au rédacteur ; on ne change de sujet qu'au 2e échec.
+- Longueur contrôlée en code ; les articles refusés sont enregistrés avec le statut `rejected`.
+- Les sujets en attente depuis plus de 3 jours passent en `expire`.
+
+---
+
 # 🛠️ Stack technique
 
 ## Frontend
@@ -181,8 +215,9 @@ Stockage des articles :
 Gestion des sujets détectés :
 
 - sujet
-- source
-- validation
+- source (URL) et date de publication de la source
+- faits vérifiés, résumé de vérification, sources consultées
+- validation (`nouveau`, `traite`, `expire`)
 - doublons
 
 ## journaux

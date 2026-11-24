@@ -13,6 +13,7 @@ interface Article {
   categorie?: string;
   sujet_id?: string;
   image_url?: string | null;
+  sources?: { titre?: string; url: string }[] | null;
 }
 
 function formatDate(iso: string) {
@@ -104,6 +105,10 @@ export function ArticlePage() {
   }
 
   const paragraphs = article.contenu.split("\n\n").filter(Boolean);
+  // Seules les URL http(s) sont affichées comme liens
+  const sources = (Array.isArray(article.sources) ? article.sources : []).filter(
+    (s) => s && typeof s.url === "string" && /^https?:\/\//i.test(s.url)
+  );
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
@@ -180,6 +185,31 @@ export function ArticlePage() {
           </p>
         ))}
       </div>
+
+      {sources.length > 0 && (
+        <section className="mt-10 pt-6 border-t border-border">
+          <h2
+            className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Sources
+          </h2>
+          <ul className="space-y-1.5">
+            {sources.map((s, i) => (
+              <li key={i} className="text-sm" style={{ fontFamily: "var(--font-body)" }}>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="text-accent hover:underline break-words"
+                >
+                  {s.titre || s.url}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <footer className="mt-10 pt-6 border-t border-border">
         <div className="flex items-center gap-3 text-xs text-muted-foreground" style={{ fontFamily: "var(--font-body)" }}>

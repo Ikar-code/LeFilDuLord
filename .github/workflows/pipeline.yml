@@ -1,32 +1,51 @@
-name: Test Step 1 - Find Topics
+name: Pipeline Le Fil du Lord
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: 0 * */2 * *
+    # Toutes les 2 heures (à adapter : '0 */6 * * *' = toutes les 6 h, '0 6 */2 * *' = un jour sur deux à 6 h)
+    - cron: '0 */2 * * *'
+
+# Un seul run à la fois : évite deux pipelines qui piochent le même sujet en base.
+concurrency:
+  group: pipeline-fil-du-lord
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
-  test:
+  pipeline:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Scrape topics (Official RSS sources + fallback)
+      - name: Scrape topics (flux RSS cybersécurité + fallback)
+        timeout-minutes: 10
         run: python scrape_topics_v2.py scraped_topics.json
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+          # Pas de package-lock.json dans le dépôt : on hache package.json pour le cache.
+          cache-dependency-path: package.json
 
       - name: Install Node dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
 
-      - name: Run test step 1
+      # Le job échoue si la pipeline plante (run_pipeline.js met un code de sortie 1).
+      - name: Run pipeline
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -37,4 +56,4 @@ jobs:
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           SCRAPED_TOPICS_PATH: ./scraped_topics.json
-        run: node test_step1.js
+        run: node run_pipeline.js

@@ -19,6 +19,19 @@ function formatDate(iso: string) {
 
 function getCategoryColor(cat?: string) {
   const map: Record<string, string> = {
+    // Catégories cybersécurité
+    "vulnerabilites":            "text-red-700 bg-red-50",
+    "cyberattaques":             "text-orange-700 bg-orange-50",
+    "ransomware-malwares":       "text-rose-700 bg-rose-50",
+    "fuites-donnees":            "text-yellow-700 bg-yellow-50",
+    "arnaques-phishing":         "text-pink-700 bg-pink-50",
+    "ia-securite":               "text-indigo-700 bg-indigo-50",
+    "reglementation":            "text-blue-700 bg-blue-50",
+    "geopolitique-cyber":        "text-violet-700 bg-violet-50",
+    "outils-bonnes-pratiques":   "text-green-700 bg-green-50",
+    "evenements":                "text-sky-700 bg-sky-50",
+    "reunion":                   "text-amber-700 bg-amber-50",
+    // Anciennes catégories (articles déjà publiés)
     "gaming":                    "text-violet-700 bg-violet-50",
     "anime":                     "text-pink-700 bg-pink-50",
     "manga":                     "text-orange-700 bg-orange-50",
@@ -29,9 +42,8 @@ function getCategoryColor(cat?: string) {
     "intelligence-artificielle": "text-indigo-700 bg-indigo-50",
     "reseaux-sociaux":           "text-sky-700 bg-sky-50",
     "esport":                    "text-green-700 bg-green-50",
-    "reunion":                   "text-amber-700 bg-amber-50",
-    "evenements":                "text-rose-700 bg-rose-50",
   };
+
   return map[cat || ""] || "text-muted-foreground bg-muted";
 }
 
