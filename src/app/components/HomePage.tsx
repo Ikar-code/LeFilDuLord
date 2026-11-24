@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { supabase } from "../../../utils/supabase/client";
 import { labelCategorie } from "../categories";
+import { PageWithRails } from "./SideRails";
 
 interface Article {
   id: string;
@@ -124,7 +125,8 @@ export function HomePage() {
   const [featured, ...rest] = articlesFiltres;
 
   return (
-    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+    <PageWithRails>
+    <main className="py-8">
       {(recherche || categorieFiltre) && (
         <div className="mb-6">
           <span className="text-xs text-muted-foreground" style={{ fontFamily: "var(--font-body)" }}>
@@ -208,6 +210,13 @@ export function HomePage() {
         {rest.map((article) => (
           <ArticleCard key={article.id} article={article} />
         ))}
+        {/* Complète la dernière ligne pour ne pas laisser apparaître le fond gris de la grille */}
+        {Array.from({ length: (2 - (rest.length % 2)) % 2 }).map((_, i) => (
+          <div key={`fill2-${i}`} className="hidden sm:block lg:hidden bg-background" />
+        ))}
+        {Array.from({ length: (3 - (rest.length % 3)) % 3 }).map((_, i) => (
+          <div key={`fill3-${i}`} className="hidden lg:block bg-background" />
+        ))}
       </div>
 
       {articlesFiltres.length === 0 && (
@@ -222,6 +231,7 @@ export function HomePage() {
         </div>
       )}
     </main>
+    </PageWithRails>
   );
 }
 

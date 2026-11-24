@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { supabase } from "../../utils/supabase/client";
 import { labelCategorie } from "../categories";
+import { PageWithRails } from "./SideRails";
 
 interface Article {
   id: string;
@@ -112,7 +113,8 @@ export function ArticlePage() {
   );
 
   return (
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <PageWithRails>
+    <main className="max-w-3xl mx-auto py-10">
       <Link
         to="/"
         className="inline-block text-xs text-muted-foreground hover:text-accent transition-colors mb-6"
@@ -223,5 +225,6 @@ export function ArticlePage() {
         </div>
       </footer>
     </main>
+    </PageWithRails>
   );
 }
