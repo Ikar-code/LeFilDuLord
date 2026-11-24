@@ -1,6 +1,7 @@
 import { supabase } from './clients.js';
 import { log } from './logger.js';
 import { callGroqJson } from './groq.js';
+import { CATEGORIES_AUTORISEES } from './step1_findTopics.js';
 
 // Un sujet "nouveau" plus vieux que ça (date de la source ou de création) est périmé.
 const EXPIRATION_JOURS = 3;
@@ -201,9 +202,21 @@ async function expirerVieuxSujets() {
     await log('checkDuplicates', 'Erreur expiration des sujets: ' + parDateCreation.error.message, 'error');
   }
 
-  const nb = (parDateSource.data?.length || 0) + (parDateCreation.data?.length || 0);
+  // c) sujet d'une catégorie hors ligne éditoriale (ex. anciens sujets gaming/anime d'avant le passage à la cybersécurité)
+  const horsLigne = await supabase
+    .from('sujets')
+    .update({ statut: 'expire' })
+    .eq('statut', 'nouveau')
+    .not('categorie', 'in', `(${CATEGORIES_AUTORISEES.join(',')})`)
+    .select('id');
+
+  if (horsLigne.error) {
+    await log('checkDuplicates', 'Erreur expiration des sujets hors ligne éditoriale: ' + horsLigne.error.message, 'error');
+  }
+
+  const nb = (parDateSource.data?.length || 0) + (parDateCreation.data?.length || 0) + (horsLigne.data?.length || 0);
   if (nb > 0) {
-    await log('checkDuplicates', `${nb} sujet(s) en attente passés en "expire" (plus de ${EXPIRATION_JOURS} jours)`, 'info');
+    await log('checkDuplicates', `${nb} sujet(s) en attente passés en "expire" (trop anciens ou hors ligne éditoriale)`, 'info');
   }
 }
 
